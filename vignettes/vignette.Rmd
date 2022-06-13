@@ -1,0 +1,27 @@
+---
+title: "StructuralVariantUtil"
+author: "Tingting Gong"
+date: "`r Sys.Date()`"
+output: 
+  html_document:
+    toc: yes
+    toc_float:
+      collapsed: yes
+      smooth_scroll: yes
+  pdf_document:
+  toc: yes
+vignette: >
+  %\VignetteIndexEntry{StructuralVariantUtil}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r setup, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+```
+
+
+## Installation
