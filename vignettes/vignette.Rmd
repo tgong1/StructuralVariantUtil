@@ -2,18 +2,12 @@
 title: "StructuralVariantUtil"
 author: "Tingting Gong"
 date: "`r Sys.Date()`"
-output: 
+output:
   html_document:
-    toc: yes
-    toc_float:
-      collapsed: yes
-      smooth_scroll: yes
-  pdf_document:
-  toc: yes
-vignette: >
-  %\VignetteIndexEntry{StructuralVariantUtil}
-  %\VignetteEngine{knitr::rmarkdown}
-  %\VignetteEncoding{UTF-8}
+    df_print: paged
+  pdf_document: default
+vignette: |
+  %\VignetteIndexEntry{StructuralVariantUtil} %\VignetteEncoding{UTF-8} %\VignetteEngine{knitr::rmarkdown}
 ---
 
 ```{r setup, include = FALSE}
