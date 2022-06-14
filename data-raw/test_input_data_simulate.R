@@ -5,7 +5,7 @@
 #tumour coverage with mean of 60 and SD of 10.
 #The BND threshold was set as 100 bp.
 set.seed(1)
-ShinySoSV_newdata <- data.frame(sampleID = paste0("sample_",c(1:100)),
+newdata <- data.frame(sampleID = paste0("sample_",c(1:100)),
                                 VAF = round(rnorm(100, mean=0.5, sd=0.1),digits = 2),
                                 N_coverage = round(rnorm(100, mean=30, sd=10),digits = 2),
                                 T_coverage = round(rnorm(100, mean=60, sd=10),digits = 2),
