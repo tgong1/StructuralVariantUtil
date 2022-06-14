@@ -1,10 +1,4 @@
-load(paste0("~/Desktop/work_at_home/HRPCa_SV_method_paper/TEST_R_script2/Shiny-SoSV/data/","gam","sen","_callers.RData"))
-load(paste0("~/Desktop/work_at_home/HRPCa_SV_method_paper/TEST_R_script2/Shiny-SoSV/data/","gam","sen","_UnionIntersect","_callers.RData"))
-load(paste0("~/Desktop/work_at_home/HRPCa_SV_method_paper/TEST_R_script2/Shiny-SoSV/data/","gam","pre_off","_callers.RData"))
-load(paste0("~/Desktop/work_at_home/HRPCa_SV_method_paper/TEST_R_script2/Shiny-SoSV/data/","gam","pre_off","_UnionIntersect","_callers.RData"))
-load(paste0("~/Desktop/work_at_home/HRPCa_SV_method_paper/TEST_R_script2/Shiny-SoSV/data/","gam","pre_off","_callers.RData"))
-load(paste0("~/Desktop/work_at_home/HRPCa_SV_method_paper/TEST_R_script2/Shiny-SoSV/data/","gam","pre_off","_UnionIntersect","_callers.RData"))
-
+### save all gam models to sysdata.rda
 directory <- "~/Desktop/work_at_home/HRPCa_SV_method_paper/TEST_R_script2/"
 model_name1 <- paste0(c("sen", "pre_off", "F1_score"))
 model_name2 <- paste0(c("", "_UnionIntersect", "_UnionIntersect"))
@@ -25,7 +19,18 @@ for(callset in c("union","intersection","individual")){
   }
 }
 
-do.call(usethis::use_data, c(lapply(c(paste0("gamsen_", combine_SV_SVcaller), paste0("gampre_off_", combine_SV_SVcaller)), as.name),internal = TRUE, overwrite = TRUE))
+do.call(usethis::use_data, c(lapply(c(paste0("gamsen_", combine_SV_SVcaller),
+                                      paste0("gampre_off_", combine_SV_SVcaller),
+                                      paste0("gamF1_score_", combine_SV_SVcaller)), as.name),internal = TRUE, overwrite = TRUE))
+
+githubURL <- "https://github.com/tgong1/Shiny-SoSV/tree/master/data/gamsen_callers.RData"
+load(url("https://github.com/tgong1/Shiny-SoSV/tree/master/data/gamsen_callers.RData"))
+x <- RCurl::getURL("https://github.com/tgong1/Shiny-SoSV/tree/master/data/gamsen_callers.RData")
+y <- load(x)
+
+
+download.file(githubURL,"myfile")
+load("myfile")
 
 ### Test data for ShinySoSV prediction
 #Data was generated randomly with normal distribution:
