@@ -19,9 +19,10 @@ for(callset in c("union","intersection","individual")){
   }
 }
 
-do.call(usethis::use_data, c(lapply(c(paste0("gamsen_", combine_SV_SVcaller),
-                                      paste0("gampre_off_", combine_SV_SVcaller),
-                                      paste0("gamF1_score_", combine_SV_SVcaller)), as.name),internal = TRUE, overwrite = TRUE))
+do.call(usethis::use_data, c(lapply(c(paste0("gamsen_", combine_SV_SVcaller)
+                                      #paste0("gampre_off_", combine_SV_SVcaller),
+                                     # paste0("gamF1_score_", combine_SV_SVcaller)
+                                      ), as.name),internal = TRUE, overwrite = TRUE))
 
 ### Test data for ShinySoSV prediction
 #Data was generated randomly with normal distribution:
