@@ -16,7 +16,7 @@ ShinySoSV_prediction <- function(Candidate_callers, newdata, performance, callse
  # for(i in c(1:length(model_name))){
     #load(paste0("./Shiny-SoSV/data/","gam",model_name[i],"_callers.RData"))
     #load(paste0("sysdata.rda"))
-    source(paste0("R/sysdata.rda"))
+    load(paste0("R/sysdata.rda"))
  # }
 
   combine_SV_SVcaller <- c()
