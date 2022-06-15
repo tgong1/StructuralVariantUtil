@@ -13,10 +13,12 @@ ShinySoSV_prediction <- function(Candidate_callers, newdata, performance, callse
   model_name2 <- paste0(c("", "_UnionIntersect", "_UnionIntersect")[c("individual", "union", "intersection") %in% callset])
 
   model_name <- apply(expand.grid(model_name1, model_name2), 1, paste, collapse="")
+
   #for(i in c(1:length(model_name))){
   #  load(paste0("./Shiny-SoSV/data/","gam",model_name[i],"_callers.RData"))
     load(paste0("R/sysdata.rda"))
   #}
+
 
   combine_SV_SVcaller <- c()
   for(i in c(1:length(callset))){
