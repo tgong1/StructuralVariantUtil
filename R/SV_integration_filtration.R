@@ -12,7 +12,7 @@ vcf_to_bed <- function(vcf_file){
   gr <- vcf@rowRanges
   info <- vcf@info
 
-  for(field in c("SVLEN","END", "STRANDS","CT","INV5","INV3","MATEID")){
+  for(field in c("SVTYPE","SVLEN","END", "STRANDS","CT","INV5","INV3","MATEID")){
     tmp <- eval(parse(text=paste0("info$", field)))
     if (length(tmp) == 0){
       assign(paste0("INFO_", field), NA)
@@ -35,7 +35,7 @@ vcf_to_bed <- function(vcf_file){
                     QUAL = fixed_df$QUAL,
                     FILTER = fixed_df$FILTER,
                     INFO_END,
-                    INFO_SVTYPE = info$SVTYPE,
+                    INFO_SVTYPE,
                     INFO_SVLEN,
                     INFO_STRANDS,
                     INFO_CT = INFO_CT,

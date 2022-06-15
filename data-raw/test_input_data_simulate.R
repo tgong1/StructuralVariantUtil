@@ -23,15 +23,6 @@ do.call(usethis::use_data, c(lapply(c(paste0("gamsen_", combine_SV_SVcaller),
                                       paste0("gampre_off_", combine_SV_SVcaller),
                                       paste0("gamF1_score_", combine_SV_SVcaller)), as.name),internal = TRUE, overwrite = TRUE))
 
-githubURL <- "https://github.com/tgong1/Shiny-SoSV/tree/master/data/gamsen_callers.RData"
-load(url("https://github.com/tgong1/Shiny-SoSV/tree/master/data/gamsen_callers.RData"))
-x <- RCurl::getURL("https://github.com/tgong1/Shiny-SoSV/tree/master/data/gamsen_callers.RData")
-y <- load(x)
-
-
-download.file(githubURL,"myfile")
-load("myfile")
-
 ### Test data for ShinySoSV prediction
 #Data was generated randomly with normal distribution:
 #VAF with mean of 0.5 and SD of 0.1;
