@@ -20,26 +20,37 @@ SVTYPE_stat_generate <- function(bedpe){
 #' This function read bed format
 #'
 #' @param All_sampleID sample ID
-#' @param All_input_df_name names
+#' @param vcf_list names
 #' @return data frame
 #' @export
-Summary_SV_type <- function(All_sampleID, All_input_df_name){
+Summary_SV_type <- function(All_sampleID, vcf_list){
   summary_results <- c()
   for(i in c(1:length(All_sampleID))){
     sampleID <- All_sampleID[i]
-    df <- eval(parse(text = All_input_df_name[i]))
-    SVTYPE_count <- SVTYPE_stat_generate(df)
+    vcf_file <- vcf_list[i]
+    SVTYPE_count <- simple_SVTYPE_classification(vcf_file, caller_name = "StructuralVariantUtil")[[2]]
 
     all_colnames <- unique(c(colnames(summary_results), colnames(SVTYPE_count)))
 
     SVTYPE_count_tmp <- data.frame(matrix(0, nrow = nrow(SVTYPE_count), ncol = length(all_colnames)))
     colnames(SVTYPE_count_tmp) <- all_colnames
-    SVTYPE_count_tmp[colnames(SVTYPE_count_tmp) %in% colnames(SVTYPE_count)] <- SVTYPE_count
+
+    index <- match(colnames(SVTYPE_count), colnames(SVTYPE_count_tmp))
+    index_SVTYPE <- index[!(is.na(index))]
+    SVTYPE_count_tmp[,index_SVTYPE] <- SVTYPE_count
+
+   # SVTYPE_count_tmp[colnames(SVTYPE_count_tmp) %in% colnames(SVTYPE_count)] <- SVTYPE_count
 
     if(i > 1){
       summary_results_tmp <- data.frame(matrix(0, nrow = nrow(summary_results), ncol = length(all_colnames)))
       colnames(summary_results_tmp) <- all_colnames
-      summary_results_tmp[colnames(summary_results_tmp) %in% colnames(summary_results)] <- summary_results
+
+      index <- match(colnames(summary_results), colnames(summary_results_tmp))
+      index_SVTYPE <- index[!(is.na(index))]
+      summary_results_tmp[,index_SVTYPE] <- summary_results
+
+
+      #summary_results_tmp[colnames(summary_results_tmp) %in% colnames(summary_results)] <- summary_results
       summary_results <- summary_results_tmp
     }
     summary_results <- rbind(summary_results, SVTYPE_count_tmp)

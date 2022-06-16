@@ -4,6 +4,9 @@ vcf_list <- c("manta_SVEngine_TumorSV2.60x_NormalSV1.60x_0.5.T.PASS.recode.vcf",
   )
 usethis::use_data(vcf_list,overwrite = TRUE)
 
+
+
+
 ### save all gam models to sysdata.rda, sysdaya.rda is too large, NOT USE!!!!
 directory <- "~/Desktop/work_at_home/HRPCa_SV_method_paper/TEST_R_script2/"
 model_name1 <- paste0(c("sen", "pre_off", "F1_score"))
