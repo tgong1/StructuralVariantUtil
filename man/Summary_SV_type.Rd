@@ -9,7 +9,7 @@ Summary_SV_type(All_sampleID, vcf_list)
 \arguments{
 \item{All_sampleID}{sample ID}
 
-\item{vcf_list}{names}
+\item{vcf_list}{vcf file names}
 }
 \value{
 data frame

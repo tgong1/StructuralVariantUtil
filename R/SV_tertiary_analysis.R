@@ -20,7 +20,7 @@ SVTYPE_stat_generate <- function(bedpe){
 #' This function read bed format
 #'
 #' @param All_sampleID sample ID
-#' @param vcf_list names
+#' @param vcf_list vcf file names
 #' @return data frame
 #' @export
 Summary_SV_type <- function(All_sampleID, vcf_list){
@@ -64,16 +64,16 @@ Summary_SV_type <- function(All_sampleID, vcf_list){
 #' This function read bed format
 #'
 #' @param All_sampleID sample ID
-#' @param All_input_df_name names
+#' @param vcf_list vcf file names
 #' @param threshold_total threshold of minimum total count of SVs per sample
 #' @param threshold_relative_freq threshold of minimum relative frequency of one SV type
 #' @return data frame of hyper SV
 #' @export
-Spectrum_SV_type <- function(All_sampleID, All_input_df_name, threshold_total, threshold_relative_freq){
-  input_SV_count <- Summary_SV_type(All_sampleID, All_input_df_name)
+Spectrum_SV_type <- function(All_sampleID, vcf_list, threshold_total, threshold_relative_freq){
+  input_SV_count <- Summary_SV_type(All_sampleID, vcf_list)
   theme1 <-  ggplot2::theme(axis.text=ggplot2::element_text(size=12,face="bold"),
                             axis.title=ggplot2::element_text(size=14,face="bold"),
-                            axis.text.x = ggplot2::element_text(angle = 90, hjust = 1, size = 8),
+                            axis.text.x = ggplot2::element_text(angle = 90, hjust = 1, size = 12),
                             plot.title = ggplot2::element_text(size=14),
                             legend.text = ggplot2::element_text(size=12,face="bold"),
                             #legend.title = element_text(size=12,face="bold"),
@@ -129,7 +129,8 @@ Spectrum_SV_type <- function(All_sampleID, All_input_df_name, threshold_total, t
   dev.off()
 
   hyper_SV <- df2[df2$relative_freq > threshold_relative_freq & df2$N_total > threshold_total,]
-  return(hyper_SV)
+  hyper_SV$HYPER_SVTYPE <- paste0("hyper-", hyper_SV$SVTYPE)
+  return(list(input_SV_count, hyper_SV))
 }
 
 #' Integrate SV and CNV
