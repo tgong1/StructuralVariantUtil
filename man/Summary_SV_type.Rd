@@ -4,12 +4,12 @@
 \alias{Summary_SV_type}
 \title{Summary SV count}
 \usage{
-Summary_SV_type(All_sampleID, All_input_df_name)
+Summary_SV_type(All_sampleID, vcf_list)
 }
 \arguments{
 \item{All_sampleID}{sample ID}
 
-\item{All_input_df_name}{names}
+\item{vcf_list}{names}
 }
 \value{
 data frame
