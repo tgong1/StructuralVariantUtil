@@ -1,4 +1,10 @@
-### save all gam models to sysdata.rda
+vcf_list <- c("manta_SVEngine_TumorSV2.60x_NormalSV1.60x_0.5.T.PASS.recode.vcf",
+  "lumpy_SVEngine_TumorSV2.60x_NormalSV1.60x_0.5_TumorminSU4.vcf",
+  "delly_SVEngine_TumorSV2.60x_NormalSV1.60x_0.5.somatic.PASS.vcf"
+  )
+usethis::use_data(vcf_list,overwrite = TRUE)
+
+### save all gam models to sysdata.rda, sysdaya.rda is too large, NOT USE!!!!
 directory <- "~/Desktop/work_at_home/HRPCa_SV_method_paper/TEST_R_script2/"
 model_name1 <- paste0(c("sen", "pre_off", "F1_score"))
 model_name2 <- paste0(c("", "_UnionIntersect", "_UnionIntersect"))
@@ -24,7 +30,7 @@ do.call(usethis::use_data, c(lapply(c(paste0("gamsen_", combine_SV_SVcaller)
                                      # paste0("gamF1_score_", combine_SV_SVcaller)
                                       ), as.name),internal = TRUE, overwrite = TRUE))
 
-### Test data for ShinySoSV prediction
+### Test data for ShinySoSV prediction, NOT USE!!!! directly simulate in example
 #Data was generated randomly with normal distribution:
 #VAF with mean of 0.5 and SD of 0.1;
 #normal coverage with mean of 30 and SD of 10 and
@@ -38,7 +44,7 @@ newdata <- data.frame(sampleID = paste0("sample_",c(1:100)),
                                 BND_threshold = 100)
 usethis::use_data(ShinySoSV_newdata,overwrite = TRUE)
 
-### Test data for simple Sv type classification
+### Test data for simple Sv type classification NOT USE!!!
 vcf_file <- system.file("extdata",
                         "GRIDSS_SVEngine_TumorSV2.60x_NormalSV1.60x_0.5_somatic_PASS_annotated.vcf",
                         package = "ShinySoSV2")
@@ -97,11 +103,15 @@ for(i in c(1: nrow(input_SV_count))){
     res <- generateRandomPos(n = n, chr = c(seq(1:22),"X","Y"), chr.sizes = seq(0.2,24), width = SV_length, strand = "+")
     sample_tmp_bed <- rbind(sample_tmp_bed, data.frame(chrom = paste0("chr",res@seqnames), res@ranges, strand = res@strand, SVTYPE = SVTYPE))
   }
-  write.table(sample_tmp_bed, paste0(input_SV_count$sampleID[i],"_tmp.bed"), quote=FALSE, sep='\t', row.names=FALSE, col.names=FALSE)
+  write.table(sample_tmp_bed, paste0("/Users/tingtinggong/Desktop/work_at_home/HRPCa_SV_method_paper/TEST_R_script/",
+                                     input_SV_count$sampleID[i],"_tmp.bed"), quote=FALSE, sep='\t', row.names=FALSE, col.names=FALSE)
   system(paste0("/opt/homebrew/bin/bedtools shuffle ",
-                "-excl hg38_gaps_centromeres_Telomeres.bed -i ",
-                input_SV_count$sampleID[i],"_tmp.bed ","-g hg38.genome ",
+                "-excl /Users/tingtinggong/Desktop/work_at_home/HRPCa_SV_method_paper/TEST_R_script/hg38_gaps_centromeres_Telomeres.bed -i ",
+                "/Users/tingtinggong/Desktop/work_at_home/HRPCa_SV_method_paper/TEST_R_script/",
+                input_SV_count$sampleID[i],"_tmp.bed ",
+                "-g /Users/tingtinggong/Desktop/work_at_home/HRPCa_SV_method_paper/TEST_R_script/hg38.genome ",
                 "> ",
+                "/Users/tingtinggong/Desktop/work_at_home/HRPCa_SV_method_paper/TEST_R_script/",
                 "random_",input_SV_count$sampleID[i],".bed"))
 
   random_sample.bed <- read.table(paste0("random_",input_SV_count$sampleID[i],".bed"))
@@ -121,9 +131,13 @@ for(i in c(1: nrow(input_SV_count))){
                    strand = random_sample.bed$strand1[1:(n_total_tmp-n_TRA)])
   assign(paste0(All_sampleID[i], "_df"), df[!(df$SVTYPE == "TRA" & (df$chrom1 == df$chrom2)),])
 }
-save(list = paste0(All_sampleID, "_df"), file = "./input_SV_bed.RData")
+#save(list = paste0(All_sampleID, "_df"), file = "./input_SV_bed.RData")
+do.call(usethis::use_data, c(lapply(paste0(All_sampleID, "_df"), as.name),overwrite = TRUE))
+list <- do.call(list, lapply(paste0(All_sampleID, "_df"), as.name))
+list <- setNames(list, paste0(All_sampleID, "_df"))
+usethis::use_data(list, overwrite = TRUE)
 
-
+######Test data for SV spectrum NOT USE!!!!!
 set.seed(1)
 input_SV_count <- data.frame(sampleID = paste0("sample_",c(1:100)),
                              DEL = sample.int(300, 100, replace = TRUE),

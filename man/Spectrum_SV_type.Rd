@@ -4,10 +4,17 @@
 \alias{Spectrum_SV_type}
 \title{Spectrum of SV count}
 \usage{
-Spectrum_SV_type(input_SV_count, threshold_total, threshold_relative_freq)
+Spectrum_SV_type(
+  All_sampleID,
+  All_input_df_name,
+  threshold_total,
+  threshold_relative_freq
+)
 }
 \arguments{
-\item{input_SV_count}{SV type count data frame}
+\item{All_sampleID}{sample ID}
+
+\item{All_input_df_name}{names}
 
 \item{threshold_total}{threshold of minimum total count of SVs per sample}
 

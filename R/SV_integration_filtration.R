@@ -52,11 +52,12 @@ vcf_to_bed <- function(vcf_file){
 #'
 #' This function read bed format
 #'
-#' @param bed datafame of bed format
+#' @param vcf_file names of vcf file
 #' @param caller_name name of caller to be used in ID
 #' @return data frame
 #' @export
-simple_SVTYPE_classification <- function(bed, caller_name){
+simple_SVTYPE_classification <- function(vcf_file, caller_name){
+  bed <- vcf_to_bed(vcf_file)
   bedpe <- bed_to_bedpe(bed)
   if(length(bedpe$ID_caller)!=0){
     bedpe <- bedpe[is.na(match(bedpe$ID_caller, bedpe$INFO_MATEID_caller)) | ### either don't have mate (i.e. not BND)
@@ -97,8 +98,11 @@ simple_SVTYPE_classification <- function(bed, caller_name){
                                          "strand1","strand2",
                                          "ID","ID_mate",
                                          colnames(bedpe)[!(colnames(bedpe) %in% c("chrom1","chrom2","pos1","pos2","strand1","strand2"))])
-  return(bedpe_SVTYPE_classified)
+  SVTYPE_stat <- SVTYPE_stat_generate(bedpe_SVTYPE_classified)
+  rownames(SVTYPE_stat) <- vcf_file
+  return(list(bedpe_SVTYPE_classified, SVTYPE_stat))
 }
+
 #' Integrate SV call sets and write output
 #'
 #' This function read bed format

@@ -4,10 +4,10 @@
 \alias{simple_SVTYPE_classification}
 \title{Classify SV types based on VCF}
 \usage{
-simple_SVTYPE_classification(bed, caller_name)
+simple_SVTYPE_classification(vcf_file, caller_name)
 }
 \arguments{
-\item{bed}{datafame of bed format}
+\item{vcf_file}{names of vcf file}
 
 \item{caller_name}{name of caller to be used in ID}
 }

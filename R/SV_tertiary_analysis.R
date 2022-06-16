@@ -52,12 +52,14 @@ Summary_SV_type <- function(All_sampleID, All_input_df_name){
 #'
 #' This function read bed format
 #'
-#' @param input_SV_count SV type count data frame
+#' @param All_sampleID sample ID
+#' @param All_input_df_name names
 #' @param threshold_total threshold of minimum total count of SVs per sample
 #' @param threshold_relative_freq threshold of minimum relative frequency of one SV type
 #' @return data frame of hyper SV
 #' @export
-Spectrum_SV_type <- function(input_SV_count, threshold_total, threshold_relative_freq){
+Spectrum_SV_type <- function(All_sampleID, All_input_df_name, threshold_total, threshold_relative_freq){
+  input_SV_count <- Summary_SV_type(All_sampleID, All_input_df_name)
   theme1 <-  ggplot2::theme(axis.text=ggplot2::element_text(size=12,face="bold"),
                             axis.title=ggplot2::element_text(size=14,face="bold"),
                             axis.text.x = ggplot2::element_text(angle = 90, hjust = 1, size = 8),
