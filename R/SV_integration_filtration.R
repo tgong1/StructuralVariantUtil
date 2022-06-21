@@ -109,18 +109,26 @@ simple_SVTYPE_classification <- function(vcf_file, caller_name){
 #'
 #' @param sampleID sample ID
 #' @param SVCaller_name name of callers
-#' @param SVCaller_bed_name names of call sets
+#' @param vcf_list list of VCF files from different callers
 #' @param bkpt_T_callers threshold of breakpoint difference
 #' @param SVTYPE_ignore whether ignore SV type for integration
 #' @param bedtools_dir directory of bedtools
 #' @return data frame
 #' @export
-SV_integration <- function(sampleID, SVCaller_name, SVCaller_bed_name,bkpt_T_callers,SVTYPE_ignore, bedtools_dir){
+SV_integration <- function(sampleID, SVCaller_name, vcf_list, bkpt_T_callers, SVTYPE_ignore, bedtools_dir){
   BND_diff <- 2000
   directory <- "./"
   sub_directory <- paste0("./", paste0(SVCaller_name,collapse = ""))
   dir.create(sub_directory)
   SVTYPE_ignore_text <- ifelse(SVTYPE_ignore, "SVTYPE_ignore", "SVTYPE_same")
+
+  for(i in c(1:length(SVCaller_name))){
+    results <- simple_SVTYPE_classification(vcf_file = vcf_list[i], caller_name = SVCaller_name[i])
+    tmp <- results[[1]]
+    tmp <- tmp[tmp$chrom1 %in% paste0("chr", c(1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,"X","Y")),]
+    assign(paste0(SVCaller_name[i],"_standard_bedpe"), tmp)
+  }
+
   SVCaller_bed_union <- SVCaller_union_intersect_generate(sampleID, SVCaller_name, SVCaller_bed_name, BND_diff, bkpt_T_callers, SVTYPE_ignore, bedtools_dir)
   index <- which(colnames(SVCaller_bed_union) %in% SVCaller_name)
   SVCaller_bed_union <- SVCaller_bed_union[,c(1:9, index)]
