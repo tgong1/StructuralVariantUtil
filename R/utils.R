@@ -181,7 +181,7 @@ TypePosfilter <- function(intersect_file, SVTYPE_ignore){
 SVCaller_union_intersect_generate <- function(sampleID, SVCaller_name,SVCaller_bed_name,BND_diff,bkpt_T_callers,SVTYPE_ignore,bedtools_dir){
   ### Each bed, convert to bed_tmp and written to bed_tmp file
   for (i in 1:length(SVCaller_name)){
-    #assign(paste0(SVCaller_name[i],"_standard_bedpe"), eval(parse(text=SVCaller_bed_name[i])))
+    assign(paste0(SVCaller_name[i],"_standard_bedpe"), eval(parse(text=SVCaller_bed_name[i])))
     assign(paste0(SVCaller_name[i],"_bed_tmp"), Standard_bedtool_prepare_bkpt(eval(parse(text=paste0(SVCaller_name[i],"_standard_bedpe"))),BND_diff))
     write.table(eval(parse(text=paste0(SVCaller_name[i],"_bed_tmp"))), paste0(sampleID, "_", SVCaller_name[i],"_tmp.bed"), quote=FALSE, sep='\t', row.names=FALSE, col.names=FALSE)
   }
