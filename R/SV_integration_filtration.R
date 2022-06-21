@@ -122,13 +122,15 @@ SV_integration <- function(sampleID, SVCaller_name, vcf_list, bkpt_T_callers, SV
   dir.create(sub_directory)
   SVTYPE_ignore_text <- ifelse(SVTYPE_ignore, "SVTYPE_ignore", "SVTYPE_same")
 
+  SVCaller_bed_name <- c()
   for(i in c(1:length(SVCaller_name))){
     results <- simple_SVTYPE_classification(vcf_file = vcf_list[i], caller_name = SVCaller_name[i])
     tmp <- results[[1]]
     tmp <- tmp[tmp$chrom1 %in% paste0("chr", c(1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,"X","Y")),]
-    assign(paste0(SVCaller_name[i],"_standard_bedpe"), tmp)
+    #assign(paste0(SVCaller_name[i],"_standard_bedpe"), tmp)
+    SVCaller_bed_name <- list(SVCaller_bed_name, tmp)
   }
-  SVCaller_bed_name <- paste0(SVCaller_name, "_standard_bedpe")
+  #SVCaller_bed_name <- paste0(SVCaller_name, "_standard_bedpe")
   SVCaller_bed_union <- SVCaller_union_intersect_generate(sampleID, SVCaller_name, SVCaller_bed_name, BND_diff, bkpt_T_callers, SVTYPE_ignore, bedtools_dir)
   index <- which(colnames(SVCaller_bed_union) %in% SVCaller_name)
   SVCaller_bed_union <- SVCaller_bed_union[,c(1:9, index)]
