@@ -7,7 +7,7 @@
 SV_integration(
   sampleID,
   SVCaller_name,
-  SVCaller_bed_name,
+  vcf_list,
   bkpt_T_callers,
   SVTYPE_ignore,
   bedtools_dir
@@ -18,7 +18,7 @@ SV_integration(
 
 \item{SVCaller_name}{name of callers}
 
-\item{SVCaller_bed_name}{names of call sets}
+\item{vcf_list}{list of VCF files from different callers}
 
 \item{bkpt_T_callers}{threshold of breakpoint difference}
 
