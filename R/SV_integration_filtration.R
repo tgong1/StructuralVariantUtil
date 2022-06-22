@@ -107,15 +107,15 @@ simple_SVTYPE_classification <- function(vcf_file, caller_name){
 #'
 #' This function read bed format
 #'
-#' @param sampleID sample ID
 #' @param SVCaller_name name of callers
 #' @param vcf_list list of VCF files from different callers
+#' @param sampleID sample ID
 #' @param bkpt_T_callers threshold of breakpoint difference
 #' @param SVTYPE_ignore whether ignore SV type for integration
 #' @param bedtools_dir directory of bedtools
 #' @return data frame
 #' @export
-SV_integration <- function(sampleID, SVCaller_name, vcf_list, bkpt_T_callers = 100, SVTYPE_ignore = TRUE, bedtools_dir=NULL){
+SV_integration <- function(SVCaller_name, vcf_list, sampleID = "sample", bkpt_T_callers = 100, SVTYPE_ignore = TRUE, bedtools_dir=NULL){
   if(is.null(bedtools_dir)){bedtools_dir <- Check_bedtools(x = "bedtools")}else{cat(paste0("Provided path for bedtools ... \n", bedtools_dir,"\n"))}
   if(is.null(bedtools_dir) | bedtools_dir == ""){cat(paste0("ERROR: Please provide the bedtools path."))}else{
     BND_diff <- 2000
