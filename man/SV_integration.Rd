@@ -8,9 +8,9 @@ SV_integration(
   sampleID,
   SVCaller_name,
   vcf_list,
-  bkpt_T_callers,
-  SVTYPE_ignore,
-  bedtools_dir
+  bkpt_T_callers = 100,
+  SVTYPE_ignore = TRUE,
+  bedtools_dir = NULL
 )
 }
 \arguments{

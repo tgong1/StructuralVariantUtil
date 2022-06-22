@@ -115,36 +115,31 @@ simple_SVTYPE_classification <- function(vcf_file, caller_name){
 #' @param bedtools_dir directory of bedtools
 #' @return data frame
 #' @export
-SV_integration <- function(sampleID, SVCaller_name, vcf_list, bkpt_T_callers, SVTYPE_ignore, bedtools_dir){
-  BND_diff <- 2000
-  directory <- "./"
-  sub_directory <- paste0("./", paste0(SVCaller_name,collapse = ""))
-  dir.create(sub_directory)
-  SVTYPE_ignore_text <- ifelse(SVTYPE_ignore, "SVTYPE_ignore", "SVTYPE_same")
+SV_integration <- function(sampleID, SVCaller_name, vcf_list, bkpt_T_callers = 100, SVTYPE_ignore = TRUE, bedtools_dir=NULL){
+  if(is.null(bedtools_dir)){bedtools_dir <- Check_bedtools(x = "bedtools")}else{cat(paste0("Provided path for bedtools ... \n", bedtools_dir,"\n"))}
+  if(is.null(bedtools_dir) | bedtools_dir == ""){cat(paste0("ERROR: Please provide the bedtools path."))}else{
+    BND_diff <- 2000
+    directory <- "./"
+    sub_directory <- paste0("./", paste0(SVCaller_name,collapse = ""))
+    dir.create(sub_directory)
+    SVTYPE_ignore_text <- ifelse(SVTYPE_ignore, "SVTYPE_ignore", "SVTYPE_same")
 
-  SVCaller_bed_name <- list()
-  for(i in c(1:length(SVCaller_name))){
-    results <- simple_SVTYPE_classification(vcf_file = vcf_list[i], caller_name = SVCaller_name[i])
-    tmp <- results[[1]]
-    tmp <- tmp[tmp$chrom1 %in% paste0("chr", c(1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,"X","Y")),]
-    #assign(paste0(SVCaller_name[i],"_standard_bedpe"), tmp)
-    SVCaller_bed_name[[i]] <- tmp
+    SVCaller_bed_name <- list()
+    for(i in c(1:length(SVCaller_name))){
+      results <- simple_SVTYPE_classification(vcf_file = vcf_list[i], caller_name = SVCaller_name[i])
+      tmp <- results[[1]]
+      tmp <- tmp[tmp$chrom1 %in% paste0("chr", c(1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,"X","Y")),]
+      SVCaller_bed_name[[i]] <- tmp
+    }
+    SVCaller_bed_union <- SVCaller_union_intersect_generate(sampleID, SVCaller_name, SVCaller_bed_name, BND_diff, bkpt_T_callers, SVTYPE_ignore, bedtools_dir)
+    index <- which(colnames(SVCaller_bed_union) %in% SVCaller_name)
+    SVCaller_bed_union <- SVCaller_bed_union[,c(1:9, index)]
+    write.table(SVCaller_bed_union,
+                file = paste0(directory,"/",sub_directory,"/",
+                              sampleID, "_", paste0(SVCaller_name,collapse = "_"),
+                              "_combine_all_",bkpt_T_callers,"bp","_",SVTYPE_ignore_text,".bed"),
+                row.names = FALSE,col.names = TRUE, quote = FALSE, sep = "\t")
+    return(SVCaller_bed_union)
   }
-  #SVCaller_bed_name <- paste0(SVCaller_name, "_standard_bedpe")
-  SVCaller_bed_union <- SVCaller_union_intersect_generate(sampleID, SVCaller_name, SVCaller_bed_name, BND_diff, bkpt_T_callers, SVTYPE_ignore, bedtools_dir)
-  index <- which(colnames(SVCaller_bed_union) %in% SVCaller_name)
-  SVCaller_bed_union <- SVCaller_bed_union[,c(1:9, index)]
-  write.table(SVCaller_bed_union,
-              file = paste0(directory,"/",sub_directory,"/",
-                            sampleID, "_", paste0(SVCaller_name,collapse = "_"),
-                            "_combine_all_",bkpt_T_callers,"bp","_",SVTYPE_ignore_text,".bed"),
-              row.names = FALSE,col.names = TRUE, quote = FALSE, sep = "\t")
-  #head(SVCaller_bed_union)
-  #SVCaller_bed_intersection <- SVCaller_bed_union[(!is.na(SVCaller_bed_union$ID_overlap_Caller)),]
-  #write.table(SVCaller_bed_intersection,
-  #            file = paste0(directory,"/",sub_directory,"/",
-  #                          sampleID, "_", paste0(SVCaller_name,collapse = "_"),
-  #                         "_combine_intersection_",bkpt_T_callers,"bp","_",SVTYPE_ignore_text,".bed"),
-  #            row.names = FALSE,col.names = TRUE, quote = FALSE, sep = "\t")
-  return(SVCaller_bed_union)
+
 }

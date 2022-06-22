@@ -242,3 +242,22 @@ SVCaller_union_intersect_generate <- function(sampleID, SVCaller_name,SVCaller_b
   return (SVCaller_bed_combine_all)
 }
 
+#' Check the directory of bedtools
+#'
+#' This function check the binary of bedtools
+#'
+#' @param x "bedtools"
+#' @return bedtools path
+#' @export
+Check_bedtools <- function(x = "bedtools"){
+  # check if binary is in path
+  cat(paste0('Checking path for ', x, '... ') );
+  if (Sys.which(x) == "") {
+    cat(paste0('FAIL\n') )
+    #path <- Sys.getenv('PATH')
+  }
+  else {
+    cat(paste0('PASS\n    ', Sys.which(x), '\n') )
+  }
+  return(Sys.which(x))
+}
