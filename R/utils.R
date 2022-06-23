@@ -150,22 +150,38 @@ TypePosfilter <- function(intersect_file, SVTYPE_ignore){
                                         grepl("BND",intersect$Caller1_SVTYPE) | grepl("BND",intersect$Caller2_SVTYPE),]
 
   }
+  # if(nrow(intersect_Typefilter)!=0){
+  #   ### Check Caller_1 ID_mate also listed in Caller_1 ID
+  #   #tmp_index <- lapply(intersect_Typefilter$Caller1_ID_mate,function(x) which(x==intersect_Typefilter$Caller1_ID))
+  #
+  #   tmp_index <- parallel::mclapply(intersect_Typefilter$Caller1_ID_mate , function(x) which(x==intersect_Typefilter$Caller1_ID), mc.cores = 8)
+  #
+  #   ### Further check Caller_2 ID_mate also listed in Caller_2 ID, which matched with Caller_1 ID
+  #   BND_ID_match <- vector(length=nrow(intersect_Typefilter))
+  #   for (i in 1: nrow(intersect_Typefilter)){
+  #     BND_ID_match[i] <- intersect_Typefilter$Caller2_ID_mate[i] %in% intersect_Typefilter$Caller2_ID[tmp_index[[i]]]
+  #   }
+  #   intersect_TypePosBNDfilter <- intersect_Typefilter[BND_ID_match,]
+  # }else{
+  #   intersect_TypePosBNDfilter <- intersect_Typefilter
+  # }
+  # return(intersect_TypePosBNDfilter)
+
   if(nrow(intersect_Typefilter)!=0){
-    ### Check Caller_1 ID_mate also listed in Caller_1 ID
-    #tmp_index <- lapply(intersect_Typefilter$Caller1_ID_mate,function(x) which(x==intersect_Typefilter$Caller1_ID))
+    ID_split <- data.frame(stringr::str_split_fixed(intersect_Typefilter$Caller1_ID,"_",4))$X3
+    pos1 <- intersect_Typefilter[ID_split == 1,]
+    pos2 <- intersect_Typefilter[ID_split == 2,]
 
-    tmp_index <- parallel::mclapply(intersect_Typefilter$Caller1_ID_mate , function(x) which(x==intersect_Typefilter$Caller1_ID), mc.cores = 8)
-
-    ### Further check Caller_2 ID_mate also listed in Caller_2 ID, which matched with Caller_1 ID
-    BND_ID_match <- vector(length=nrow(intersect_Typefilter))
-    for (i in 1: nrow(intersect_Typefilter)){
-      BND_ID_match[i] <- intersect_Typefilter$Caller2_ID_mate[i] %in% intersect_Typefilter$Caller2_ID[tmp_index[[i]]]
+    tmp_index <- lapply(pos1$Caller1_ID_mate,function(x) which(x==pos2$Caller1_ID))
+    BND_ID_match <- vector(length=nrow(pos1))
+    for (i in 1: nrow(pos1)){
+      BND_ID_match[i] <- pos1$Caller2_ID_mate[i] %in% pos2$Caller2_ID[tmp_index[[i]]]
     }
-    intersect_TypePosBNDfilter <- intersect_Typefilter[BND_ID_match,]
+    pos1_filter <- pos1[BND_ID_match,]
   }else{
-    intersect_TypePosBNDfilter <- intersect_Typefilter
+    pos1_filter <- pos1_filter
   }
-  return(intersect_TypePosBNDfilter)
+  return(pos1_filter)
 }
 
 #' Integrate SV call sets
@@ -209,8 +225,8 @@ SVCaller_union_intersect_generate <- function(sampleID, SVCaller_name,SVCaller_b
                "-names",paste(SVCaller_name,collapse = " "), "-f",overlap_f, "-wo >", intersect_file))
 
   intersect_filter <- TypePosfilter(intersect_file, SVTYPE_ignore)
-  ### remove ID in tmp bed, only the ID in original bed
-  intersect_filter <- intersect_filter[intersect_filter$Caller1_ID %in% SVCaller_bed_all_newID$ID,]
+  ### remove ID in tmp bed, which is mate ID, keeping only the ID in original bed
+  #intersect_filter <- intersect_filter[intersect_filter$Caller1_ID %in% SVCaller_bed_all_newID$ID,]
 
   ############################################
   ### work for more than two sv caller overlapping ###
