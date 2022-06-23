@@ -65,15 +65,46 @@ Summary_SV_type <- function(All_sampleID, vcf_list){
 #'
 #' @param All_sampleID sample ID
 #' @param vcf_list vcf file names
+#' @param identify_hyperSV_tumour: TRUE or FALSE. Whether to identify hyper-SV mutated tumour samples for large cancer cohort. Default as FALSE.
 #' @param threshold_total threshold of minimum total count of SVs per sample
 #' @param threshold_relative_freq threshold of minimum relative frequency of one SV type
 #' @return data frame of hyper SV
 #' @export
-Spectrum_SV_type <- function(All_sampleID, vcf_list, threshold_total, threshold_relative_freq){
+Spectrum_SV_type <- function(All_sampleID, vcf_list, identify_hyperSV_tumour = FALSE, threshold_total = NULL, threshold_relative_freq = NULL){
   input_SV_count <- Summary_SV_type(All_sampleID, vcf_list)
+  N_total <- rowSums(input_SV_count[,2:ncol(input_SV_count)])
+  if(identify_hyperSV_tumour){
+    if(is.null(threshold_total)){
+      threshold_total <- mean(N_total)
+    }
+    if(is.null(threshold_relative_freq)){
+      threshold_relative_freq <- 0.5
+    }
+    df <- data.frame(SVTYPE = rep(colnames(input_SV_count)[2:ncol(input_SV_count)], each = nrow(input_SV_count)),
+                     sampleID = rep(input_SV_count$sampleID, (ncol(input_SV_count)-1)),
+                     count = as.vector(unlist(input_SV_count[,2:ncol(input_SV_count)])))
+    df2 <- cbind(df,
+                 relative_freq = df$count/(rep(N_total,(ncol(input_SV_count)-1))),
+                 total_count = rep(N_total,(ncol(input_SV_count)-1)))
+    hyper_SV <- df2[df2$relative_freq > threshold_relative_freq & df2$total_count > threshold_total,]
+    hyper_SV$HYPER_SVTYPE <- paste0("hyper-", hyper_SV$SVTYPE)
+    hyper_SV <- hyper_SV[,-1]
+    return(list(input_SV_count, hyper_SV))
+  }else{
+    return(list(input_SV_count))
+  }
+}
+#' Spectrum of SV figures
+#'
+#' This function read bed format
+#'
+#' @param input_SV_count sample ID
+#' @return figures
+#' @export
+Spectrum_SV_type_plot <- function(input_SV_count){
   theme1 <-  ggplot2::theme(axis.text=ggplot2::element_text(size=12,face="bold"),
                             axis.title=ggplot2::element_text(size=14,face="bold"),
-                            axis.text.x = ggplot2::element_text(angle = 90, hjust = 1, size = 12),
+                            axis.text.x = ggplot2::element_text(angle = 45, hjust = 1, size = 12,face="bold"),
                             plot.title = ggplot2::element_text(size=14),
                             legend.text = ggplot2::element_text(size=12,face="bold"),
                             #legend.title = element_text(size=12,face="bold"),
@@ -91,26 +122,19 @@ Spectrum_SV_type <- function(All_sampleID, vcf_list, threshold_total, threshold_
                    sampleID = rep(input_SV_count$sampleID, (ncol(input_SV_count)-1)),
                    Count = as.vector(unlist(input_SV_count[,2:ncol(input_SV_count)])))
 
-  p1 <- ggplot2::ggplot(data=df, ggplot2::aes(x=sampleID, y=Count, fill=SVTYPE)) +
+figure1 <- ggplot2::ggplot(data=df, ggplot2::aes(x=sampleID, y=Count, fill=SVTYPE)) +
     ggplot2::geom_bar(stat="identity")+
     ggplot2::scale_fill_manual(values = RColorBrewer::brewer.pal(12, "Set3"), drop=F)+
     theme1
-  pdf(file="./Spectrum_SV_across_sample.pdf", width=19, height=9)
-  print(p1)
-  dev.off()
+  #pdf(file="./Spectrum_SV_across_sample.pdf", width=19, height=9)
+  #print(p1)
+  #dev.off()
 
   p1 <- ggplot2::ggplot(df, ggplot2::aes(x = SVTYPE, y=Count)) +
     ggplot2::geom_boxplot()+
     theme2
 
   N_total <- rowSums(input_SV_count[,2:ncol(input_SV_count)])
-  if(missing(threshold_total)){
-    threshold_total <- mean(N_total)
-  }
-  if(missing(threshold_relative_freq)){
-    threshold_relative_freq <- 0.5
-  }
-
   df2 <- cbind(df,
                relative_freq = df$Count/(rep(N_total,(ncol(input_SV_count)-1))),
                N_total = rep(N_total,(ncol(input_SV_count)-1)))
@@ -120,19 +144,15 @@ Spectrum_SV_type <- function(All_sampleID, vcf_list, threshold_total, threshold_
     ggplot2::scale_y_continuous(breaks = seq(0, 1, by = 0.2), limits = c(0, 1))+
     theme2
 
-  figure1 <- ggpubr::ggarrange(p1, p2,
+  figure2 <- ggpubr::ggarrange(p1, p2,
                                labels = c("A", "B"), heights = c(1,1),
                                ncol = 2, nrow = 1)
 
-  pdf(file="./Spectrum_SV_across_SVTYPE.pdf",width=9,height=6)
-  print(figure1)
-  dev.off()
-
-  hyper_SV <- df2[df2$relative_freq > threshold_relative_freq & df2$N_total > threshold_total,]
-  hyper_SV$HYPER_SVTYPE <- paste0("hyper-", hyper_SV$SVTYPE)
-  return(list(input_SV_count, hyper_SV))
+  #pdf(file="./Spectrum_SV_across_SVTYPE.pdf",width=9,height=6)
+  #print(figure1)
+  #dev.off()
+  return(list(figure1,figure2))
 }
-
 #' Integrate SV and CNV
 #'
 #' This function integrate deletion and duplication with copy number segments

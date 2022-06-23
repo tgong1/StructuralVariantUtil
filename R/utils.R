@@ -152,7 +152,10 @@ TypePosfilter <- function(intersect_file, SVTYPE_ignore){
   }
   if(nrow(intersect_Typefilter)!=0){
     ### Check Caller_1 ID_mate also listed in Caller_1 ID
-    tmp_index <- lapply(intersect_Typefilter$Caller1_ID_mate,function(x) which(x==intersect_Typefilter$Caller1_ID))
+    #tmp_index <- lapply(intersect_Typefilter$Caller1_ID_mate,function(x) which(x==intersect_Typefilter$Caller1_ID))
+
+    tmp_index <- parallel::mclapply(intersect_Typefilter$Caller1_ID_mate , function(x) which(x==intersect_Typefilter$Caller1_ID), mc.cores = 8)
+
     ### Further check Caller_2 ID_mate also listed in Caller_2 ID, which matched with Caller_1 ID
     BND_ID_match <- vector(length=nrow(intersect_Typefilter))
     for (i in 1: nrow(intersect_Typefilter)){

@@ -99,7 +99,7 @@ simple_SVTYPE_classification <- function(vcf_file, caller_name){
                                          "ID","ID_mate",
                                          colnames(bedpe)[!(colnames(bedpe) %in% c("chrom1","chrom2","pos1","pos2","strand1","strand2"))])
   SVTYPE_stat <- SVTYPE_stat_generate(bedpe_SVTYPE_classified)
-  rownames(SVTYPE_stat) <- vcf_file
+  #rownames(SVTYPE_stat) <- vcf_file
   return(list(bedpe_SVTYPE_classified, SVTYPE_stat))
 }
 
@@ -117,7 +117,7 @@ simple_SVTYPE_classification <- function(vcf_file, caller_name){
 #' @export
 SV_integration <- function(SVCaller_name, vcf_list, sampleID = "sample", bkpt_T_callers = 100, SVTYPE_ignore = TRUE, bedtools_dir=NULL){
   if(is.null(bedtools_dir)){bedtools_dir <- Check_bedtools(x = "bedtools")}else{cat(paste0("Provided path for bedtools ... \n", bedtools_dir,"\n"))}
-  if(is.null(bedtools_dir) | bedtools_dir == ""){cat(paste0("ERROR: Please provide the bedtools path."))}else{
+  if(is.null(bedtools_dir) | bedtools_dir == ""){cat(paste0("ERROR: Please provide the bedtools path.\n"))}else{
     BND_diff <- 2000
     directory <- "./"
     sub_directory <- paste0("./", paste0(SVCaller_name,collapse = ""))
