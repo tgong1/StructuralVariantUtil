@@ -5,20 +5,20 @@
 \title{Integrate SV call sets and write output}
 \usage{
 SV_integration(
-  sampleID,
   SVCaller_name,
   vcf_list,
+  sampleID = "sample",
   bkpt_T_callers = 100,
   SVTYPE_ignore = TRUE,
   bedtools_dir = NULL
 )
 }
 \arguments{
-\item{sampleID}{sample ID}
-
 \item{SVCaller_name}{name of callers}
 
 \item{vcf_list}{list of VCF files from different callers}
+
+\item{sampleID}{sample ID}
 
 \item{bkpt_T_callers}{threshold of breakpoint difference}
 

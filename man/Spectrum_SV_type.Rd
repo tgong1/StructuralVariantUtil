@@ -7,8 +7,9 @@
 Spectrum_SV_type(
   All_sampleID,
   vcf_list,
-  threshold_total,
-  threshold_relative_freq
+  identify_hyperSV_tumour = FALSE,
+  threshold_total = NULL,
+  threshold_relative_freq = NULL
 )
 }
 \arguments{
@@ -19,6 +20,8 @@ Spectrum_SV_type(
 \item{threshold_total}{threshold of minimum total count of SVs per sample}
 
 \item{threshold_relative_freq}{threshold of minimum relative frequency of one SV type}
+
+\item{identify_hyperSV_tumour:}{TRUE or FALSE. Whether to identify hyper-SV mutated tumour samples for large cancer cohort. Default as FALSE.}
 }
 \value{
 data frame of hyper SV
