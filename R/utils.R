@@ -172,7 +172,8 @@ TypePosfilter <- function(intersect_file, SVTYPE_ignore){
     pos1 <- intersect_Typefilter[ID_split == 1,]
     pos2 <- intersect_Typefilter[ID_split == 2,]
 
-    tmp_index <- lapply(pos1$Caller1_ID_mate,function(x) which(x==pos2$Caller1_ID))
+    #tmp_index <- lapply(pos1$Caller1_ID_mate,function(x) which(x==pos2$Caller1_ID))
+    tmp_index <- parallel::mclapply(pos1$Caller1_ID_mate, function(x) which(x==pos2$Caller1_ID), mc.cores = 8)
     BND_ID_match <- vector(length=nrow(pos1))
     for (i in 1: nrow(pos1)){
       BND_ID_match[i] <- pos1$Caller2_ID_mate[i] %in% pos2$Caller2_ID[tmp_index[[i]]]
