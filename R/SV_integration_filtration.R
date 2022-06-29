@@ -115,7 +115,7 @@ simple_SVTYPE_classification <- function(vcf_file, caller_name){
 #' @param bedtools_dir directory of bedtools
 #' @return data frame
 #' @export
-SV_integration <- function(SVCaller_name, vcf_list, sampleID = "sample", bkpt_T_callers = 100, SVTYPE_ignore = FALSE, bedtools_dir=NULL){
+SV_integration <- function(SVCaller_name, vcf_list, sampleID = "sample", bkpt_T_callers = 200, SVTYPE_ignore = FALSE, bedtools_dir=NULL){
   if(is.null(bedtools_dir)){bedtools_dir <- Check_bedtools(x = "bedtools")}else{cat(paste0("Provided path for bedtools ... \n", bedtools_dir,"\n"))}
   if(is.null(bedtools_dir) | bedtools_dir == ""){cat(paste0("ERROR: Please provide the bedtools path.\n"))}else{
     BND_diff <- 2000
