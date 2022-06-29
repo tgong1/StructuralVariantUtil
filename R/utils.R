@@ -196,16 +196,17 @@ TypePosfilter <- function(intersect_file, SVTYPE_ignore){
 #' @param bkpt_T_callers threshold of breakpoint difference
 #' @param SVTYPE_ignore whether ignore SV type for integration
 #' @param bedtools_dir directory of bedtools
+#' @param sub_directory directory to write temporary files in
 #' @return data frame
 #' @export
-SVCaller_union_intersect_generate <- function(sampleID, SVCaller_name,SVCaller_bed_name,BND_diff,bkpt_T_callers,SVTYPE_ignore,bedtools_dir){
+SVCaller_union_intersect_generate <- function(sampleID, SVCaller_name,SVCaller_bed_name,BND_diff,bkpt_T_callers,SVTYPE_ignore,bedtools_dir, sub_directory){
   ### Each bed, convert to bed_tmp and written to bed_tmp file
   for (i in 1:length(SVCaller_name)){
     assign(paste0(SVCaller_name[i],"_standard_bedpe"), SVCaller_bed_name[[i]])
     #assign(paste0(SVCaller_name[i],"_bed_tmp"), Standard_bedtool_prepare_bkpt(SVCaller_bed_name[[i]],BND_diff))
 
     assign(paste0(SVCaller_name[i],"_bed_tmp"), Standard_bedtool_prepare_bkpt(eval(parse(text=paste0(SVCaller_name[i],"_standard_bedpe"))),BND_diff))
-    write.table(eval(parse(text=paste0(SVCaller_name[i],"_bed_tmp"))), paste0(sampleID, "_", SVCaller_name[i],"_tmp.bed"), quote=FALSE, sep='\t', row.names=FALSE, col.names=FALSE)
+    write.table(eval(parse(text=paste0(SVCaller_name[i],"_bed_tmp"))), paste0(sub_directory,"/", sampleID, "_", SVCaller_name[i],"_tmp.bed"), quote=FALSE, sep='\t', row.names=FALSE, col.names=FALSE)
   }
 
   ### Union set
@@ -215,15 +216,15 @@ SVCaller_union_intersect_generate <- function(sampleID, SVCaller_name,SVCaller_b
   SVCaller_bed_all_newID <- SVCaller_bed_all
   #SVCaller_bed_all_newID <- SVCaller_bed_newID_generate2(SVCaller_bed_all,SVCaller_name_all)
   SVCaller_bed_all_newID_tmp <- Standard_bedtool_prepare_bkpt(SVCaller_bed_all_newID,BND_diff)
-  write.table(SVCaller_bed_all_newID_tmp, paste0(sampleID, "_", SVCaller_name_all,"_tmp.bed"), quote=FALSE, sep='\t', row.names=FALSE, col.names=FALSE)
+  write.table(SVCaller_bed_all_newID_tmp, paste0(sub_directory,"/",sampleID, "_", SVCaller_name_all,"_tmp.bed"), quote=FALSE, sep='\t', row.names=FALSE, col.names=FALSE)
 
   ### Intersect set
   # bedtools intersect union set bed_tmp with all SV caller bed_tmp
-  intersect_file <- paste0(sampleID, "_", "all_",paste0(SVCaller_name,collapse = "_"),"_intersect.bed")
+  intersect_file <- paste0(sub_directory,"/",sampleID, "_", "all_",paste0(SVCaller_name,collapse = "_"),"_intersect.bed")
   overlap_f <- (BND_diff - bkpt_T_callers)/BND_diff
   system(paste(bedtools_dir,"intersect -a", paste0(sampleID, "_", SVCaller_name_all,"_tmp.bed"),
                "-b", paste(paste0(sampleID, "_", SVCaller_name,"_tmp.bed"), collapse = " "),
-               "-names",paste(SVCaller_name,collapse = " "), "-f",overlap_f, "-wo >", intersect_file))
+               "-names", paste(SVCaller_name,collapse = " "), "-f",overlap_f, "-wo >", intersect_file))
 
   intersect_filter <- TypePosfilter(intersect_file, SVTYPE_ignore)
   ### remove ID in tmp bed, which is mate ID, keeping only the ID in original bed

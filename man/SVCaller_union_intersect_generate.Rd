@@ -11,7 +11,8 @@ SVCaller_union_intersect_generate(
   BND_diff,
   bkpt_T_callers,
   SVTYPE_ignore,
-  bedtools_dir
+  bedtools_dir,
+  sub_directory
 )
 }
 \arguments{
@@ -28,6 +29,8 @@ SVCaller_union_intersect_generate(
 \item{SVTYPE_ignore}{whether ignore SV type for integration}
 
 \item{bedtools_dir}{directory of bedtools}
+
+\item{sub_directory}{directory to write temporary files in}
 }
 \value{
 data frame

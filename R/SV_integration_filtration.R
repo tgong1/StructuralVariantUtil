@@ -120,7 +120,7 @@ SV_integration <- function(SVCaller_name, vcf_list, sampleID = "sample", bkpt_T_
   if(is.null(bedtools_dir) | bedtools_dir == ""){cat(paste0("ERROR: Please provide the bedtools path.\n"))}else{
     BND_diff <- 2000
     directory <- "./"
-    sub_directory <- paste0("./", paste0(SVCaller_name,collapse = ""))
+    sub_directory <- paste0(directory,"/", sampleID, paste0(SVCaller_name,collapse = ""))
     dir.create(sub_directory)
     SVTYPE_ignore_text <- ifelse(SVTYPE_ignore, "SVTYPE_ignore", "SVTYPE_same")
 
@@ -131,11 +131,11 @@ SV_integration <- function(SVCaller_name, vcf_list, sampleID = "sample", bkpt_T_
       tmp <- tmp[tmp$chrom1 %in% paste0("chr", c(1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,"X","Y")),]
       SVCaller_bed_name[[i]] <- tmp
     }
-    SVCaller_bed_union <- SVCaller_union_intersect_generate(sampleID, SVCaller_name, SVCaller_bed_name, BND_diff, bkpt_T_callers, SVTYPE_ignore, bedtools_dir)
+    SVCaller_bed_union <- SVCaller_union_intersect_generate(sampleID, SVCaller_name, SVCaller_bed_name, BND_diff, bkpt_T_callers, SVTYPE_ignore, bedtools_dir, sub_directory)
     index <- which(colnames(SVCaller_bed_union) %in% SVCaller_name)
     SVCaller_bed_union <- SVCaller_bed_union[,c(1:9, index)]
     write.table(SVCaller_bed_union,
-                file = paste0(directory,"/",sub_directory,"/",
+                file = paste0(sub_directory,"/",
                               sampleID, "_", paste0(SVCaller_name,collapse = "_"),
                               "_combine_all_",bkpt_T_callers,"bp","_",SVTYPE_ignore_text,".bed"),
                 row.names = FALSE,col.names = TRUE, quote = FALSE, sep = "\t")
