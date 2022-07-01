@@ -222,8 +222,8 @@ SVCaller_union_intersect_generate <- function(sampleID, SVCaller_name,SVCaller_b
   # bedtools intersect union set bed_tmp with all SV caller bed_tmp
   intersect_file <- paste0(sub_directory,"/",sampleID, "_", "all_",paste0(SVCaller_name,collapse = "_"),"_intersect.bed")
   overlap_f <- (BND_diff - bkpt_T_callers)/BND_diff
-  system(paste(bedtools_dir,"intersect -a", paste0(sampleID, "_", SVCaller_name_all,"_tmp.bed"),
-               "-b", paste(paste0(sampleID, "_", SVCaller_name,"_tmp.bed"), collapse = " "),
+  system(paste(bedtools_dir,"intersect -a", paste0(sub_directory,"/",sampleID, "_", SVCaller_name_all,"_tmp.bed"),
+               "-b", paste(paste0(sub_directory,"/",sampleID, "_", SVCaller_name,"_tmp.bed"), collapse = " "),
                "-names", paste(SVCaller_name,collapse = " "), "-f",overlap_f, "-wo >", intersect_file))
 
   intersect_filter <- TypePosfilter(intersect_file, SVTYPE_ignore)
