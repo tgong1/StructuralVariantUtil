@@ -4,9 +4,6 @@ vcf_list <- c("manta_SVEngine_TumorSV2.60x_NormalSV1.60x_0.5.T.PASS.recode.vcf",
   )
 usethis::use_data(vcf_list,overwrite = TRUE)
 
-
-
-
 ### save all gam models to sysdata.rda, sysdaya.rda is too large, NOT USE!!!!
 directory <- "~/Desktop/work_at_home/HRPCa_SV_method_paper/TEST_R_script2/"
 model_name1 <- paste0(c("sen", "pre_off", "F1_score"))
@@ -77,7 +74,7 @@ vcf_file <- system.file("extdata",
 CallerC_bed <- simple_SVTYPE_classification(bed = vcf_to_bed(vcf_file), "CallerC")
 usethis::use_data(CallerC_bed,overwrite = TRUE)
 
-###Test data for Sv type composition
+###Test data for Sv type composition, NOT USE, three manta VCFs used
 generateRandomPos <- function(n,chr,chr.sizes,width,strand){
   random_chr <- sample(x=chr,size=n,prob=chr.sizes,replace=T)
   random_pos <- sapply(random_chr,function(chrTmp){sample(chr.sizes[chr==chrTmp],1)})
@@ -153,13 +150,13 @@ usethis::use_data(input_SV_count, overwrite = TRUE)
 ###Test data for CNV integration, currently use sample UP2003 in HRPCa project
 SCNV <- read.table(system.file("extdata",
                                "UP2003-T.final.call.threshold.cns",
-                               package = "ShinySoSV2"), header = TRUE)
+                               package = "StructuralVariantUtil"), header = TRUE)
 CNV_bed <- SCNV[,c(1,2,3,6)]
 usethis::use_data(CNV_bed, overwrite = TRUE)
 
 bedpe <- read.table(system.file("extdata",
                                 "UP2003_Manta_GRIDSS_intersect_both_high_confidence.bedpe",
-                                package = "ShinySoSV2"), header = TRUE)
+                                package = "StructuralVariantUtil"), header = TRUE)
 SV_bed <- bedpe[,c(1:10)]
 usethis::use_data(SV_bed, overwrite = TRUE)
 
