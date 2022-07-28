@@ -8,7 +8,7 @@ SV_integration(
   SVCaller_name,
   vcf_list,
   sampleID = "sample",
-  bkpt_T_callers = 100,
+  bkpt_T_callers = 200,
   SVTYPE_ignore = FALSE,
   bedtools_dir = NULL
 )

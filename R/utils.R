@@ -6,50 +6,50 @@
 #' @return data frame
 #' @export
 strands_standardisation <- function(bed){
-if(length(bed$ID_caller) == 0){bed$ID_caller = c(1:nrow(bed))}
-strand1 <- rep(NA, nrow(bed)); strand2 <- rep(NA, nrow(bed))
-if(sum(!is.na(bed$INFO_STRANDS))!=0){
-  tmp <- data.frame(stringr::str_split_fixed(bed$INFO_STRANDS,",",2), bed$ID_caller)
-  tmp$X1 <- gsub(":.*","", tmp$X1)
-  tmp$X2 <- gsub(":.*","", tmp$X2)
-  idx <- rep(1:nrow(tmp), rowSums(tmp[,c(1,2)]!=""))
-  tmp2 <- tmp[idx,]
+  if(length(bed$ID_caller) == 0){bed$ID_caller = c(1:nrow(bed))}
+  strand1 <- rep(NA, nrow(bed)); strand2 <- rep(NA, nrow(bed))
+  if(sum(!is.na(bed$INFO_STRANDS))!=0){
+    tmp <- data.frame(stringr::str_split_fixed(bed$INFO_STRANDS,",",2), bed$ID_caller)
+    tmp$X1 <- gsub(":.*","", tmp$X1)
+    tmp$X2 <- gsub(":.*","", tmp$X2)
+    idx <- rep(1:nrow(tmp), rowSums(tmp[,c(1,2)]!=""))
+    tmp2 <- tmp[idx,]
 
-  tmp2[duplicated(tmp2$bed.ID_caller),]$X1 <- tmp2[duplicated(tmp2$bed.ID_caller),]$X2
-  tmp3 <- tmp2[,-2]
-  tmp3 <- cbind(tmp3, stringr::str_split_fixed(tmp3$X1,"",2))
-  colnames(tmp3) <- c("strands","ID_caller","strand1","strand2")
-}else if(sum(!is.na(bed$INFO_CT)) != 0){
-  tmp <- data.frame(bed$INFO_CT, ID_caller = bed$ID_caller)
-  strand1[tmp$INFO_CT=="3to5"] <- "+"; strand2[tmp$INFO_CT=="3to5"] <- "-"
-  strand1[tmp$INFO_CT=="5to3"] <- "-"; strand2[tmp$INFO_CT=="5to3"] <- "+"
-  strand1[tmp$INFO_CT=="3to3"] <- "+"; strand2[tmp$INFO_CT=="3to3"] <- "+"
-  strand1[tmp$INFO_CT=="5to5"] <- "-"; strand2[tmp$INFO_CT=="5to5"] <- "-"
-  strand1[tmp$INFO_CT=="NtoN"] <- NA; strand2[tmp$INFO_CT=="NtoN"] <- NA
-  tmp3 <- cbind(tmp, strand1, strand2)
-}else if(sum(!is.na(bed$INFO_INV5)) !=0){
-  tmp <- data.frame(bed$INFO_INV5, bed$INFO_INV3, ID_caller = bed$ID_caller)
-  strand1[bed$INFO_INV5] <- "-";strand2[bed$INFO_INV5] <- "-"
-  strand1[bed$INFO_INV3] <- "+";strand2[bed$INFO_INV3] <- "+"
-  tmp3 <- cbind(tmp, strand1, strand2)
-}else{
-  tmp3 <- cbind(bed, strand1, strand2)
-}
-
-bed2 <- bed[match(tmp3$ID_caller, bed$ID_caller),]
-bed2$strand1 <- tmp3$strand1
-bed2$strand2 <- tmp3$strand2
-
-if((sum(bed2$INFO_SVTYPE %in% c("DEL","DUP")) != 0) & sum(is.na(bed2$strand1))!=0){
-  if(length(bed2[is.na(bed2$strand1) & bed2$INFO_SVTYPE == "DEL",]$strand1) != 0){
-    bed2[is.na(bed2$strand1) & bed2$INFO_SVTYPE == "DEL",]$strand1 <- "+"
-    bed2[is.na(bed2$strand2) & bed2$INFO_SVTYPE == "DEL",]$strand2 <- "-"
+    tmp2[duplicated(tmp2$bed.ID_caller),]$X1 <- tmp2[duplicated(tmp2$bed.ID_caller),]$X2
+    tmp3 <- tmp2[,-2]
+    tmp3 <- cbind(tmp3, stringr::str_split_fixed(tmp3$X1,"",2))
+    colnames(tmp3) <- c("strands","ID_caller","strand1","strand2")
+  }else if(sum(!is.na(bed$INFO_CT)) != 0){
+    tmp <- data.frame(bed$INFO_CT, ID_caller = bed$ID_caller)
+    strand1[tmp$INFO_CT=="3to5"] <- "+"; strand2[tmp$INFO_CT=="3to5"] <- "-"
+    strand1[tmp$INFO_CT=="5to3"] <- "-"; strand2[tmp$INFO_CT=="5to3"] <- "+"
+    strand1[tmp$INFO_CT=="3to3"] <- "+"; strand2[tmp$INFO_CT=="3to3"] <- "+"
+    strand1[tmp$INFO_CT=="5to5"] <- "-"; strand2[tmp$INFO_CT=="5to5"] <- "-"
+    strand1[tmp$INFO_CT=="NtoN"] <- NA; strand2[tmp$INFO_CT=="NtoN"] <- NA
+    tmp3 <- cbind(tmp, strand1, strand2)
+  }else if(sum(!is.na(bed$INFO_INV5)) !=0){
+    tmp <- data.frame(bed$INFO_INV5, bed$INFO_INV3, ID_caller = bed$ID_caller)
+    strand1[bed$INFO_INV5] <- "-";strand2[bed$INFO_INV5] <- "-"
+    strand1[bed$INFO_INV3] <- "+";strand2[bed$INFO_INV3] <- "+"
+    tmp3 <- cbind(tmp, strand1, strand2)
+  }else{
+    tmp3 <- cbind(bed, strand1, strand2)
   }
-  if(length(bed2[is.na(bed2$strand1) & bed2$INFO_SVTYPE == "DUP",]$strand1) != 0){
-    bed2[is.na(bed2$strand1) & bed2$INFO_SVTYPE == "DUP",]$strand1 <- "-"
-    bed2[is.na(bed2$strand2) & bed2$INFO_SVTYPE == "DUP",]$strand2 <- "+"
+
+  bed2 <- bed[match(tmp3$ID_caller, bed$ID_caller),]
+  bed2$strand1 <- tmp3$strand1
+  bed2$strand2 <- tmp3$strand2
+
+  if((sum(bed2$INFO_SVTYPE %in% c("DEL","DUP")) != 0) & sum(is.na(bed2$strand1))!=0){
+    if(length(bed2[is.na(bed2$strand1) & bed2$INFO_SVTYPE == "DEL",]$strand1) != 0){
+      bed2[is.na(bed2$strand1) & bed2$INFO_SVTYPE == "DEL",]$strand1 <- "+"
+      bed2[is.na(bed2$strand2) & bed2$INFO_SVTYPE == "DEL",]$strand2 <- "-"
+    }
+    if(length(bed2[is.na(bed2$strand1) & bed2$INFO_SVTYPE == "DUP",]$strand1) != 0){
+      bed2[is.na(bed2$strand1) & bed2$INFO_SVTYPE == "DUP",]$strand1 <- "-"
+      bed2[is.na(bed2$strand2) & bed2$INFO_SVTYPE == "DUP",]$strand2 <- "+"
+    }
   }
-}
 return(bed2)
 }
 
@@ -108,6 +108,30 @@ bed_to_bedpe <- function(bed){
   colnames(bedpe) <- c("chrom1", "pos1","chrom2","pos2","strand1","strand2","ALT",
                        colnames(bed)[!(colnames(bed) %in% c("CHROM","POS","INFO_END","ALT","strand1","strand2"))])
   return(bedpe)
+}
+
+#' Prepare data for SV circos plot
+#'
+#' This function read bed format
+#'
+#' @param bedpe data frame, for example output from simple_SVTYPE_classification
+#' @return data frame
+#' @export
+prepare_SV_for_circos <- function(bedpe){
+  bed1 <- data.frame(chr = bedpe$chrom1,
+                     start = bedpe$pos1,
+                     end = bedpe$pos1+1,
+                     SVTYPE = bedpe$SVTYPE)
+  bed2 <- data.frame(chr = bedpe$chrom2,
+                     start = bedpe$pos2,
+                     end = bedpe$pos2+1,
+                     SVTYPE = bedpe$SVTYPE)
+  bed3 <- bed1[bed1$SVTYPE!="TRA",]
+  bed4 <- bed2[bed2$SVTYPE!="TRA",]
+
+  bed5 <- bed1[bed1$SVTYPE =="TRA",]
+  bed6 <- bed2[bed2$SVTYPE =="TRA",]
+  return(list(bed3, bed4, bed5, bed6))
 }
 
 #' Prepare breakpoint to use for bedtools
@@ -281,4 +305,32 @@ Check_bedtools <- function(x = "bedtools"){
     cat(paste0('PASS\n    ', Sys.which(x), '\n') )
   }
   return(Sys.which(x))
+}
+
+#' Prepare_for_VennDiagram
+#'
+#' This function read bed format
+#'
+#' @param SV_integrated integrated SV call set
+#' @param sampleID sample ID
+#' @param SVCaller_name name of callers
+#' @return data frame
+#' @export
+Prepare_for_VennDiagram <- function(SV_integrated, sampleID, SVCaller_name){
+  tmp_callerID <- unlist(stringr::str_split(SV_integrated$manta[grepl(SVCaller_name[1],SV_integrated$ID)],","))
+  ID_split <- data.frame(stringr::str_split_fixed(tmp_callerID,"_",4))$X3
+  tmp_callerID <- tmp_callerID[ID_split=="1"]
+  assign(SVCaller_name[1], unique(tmp_callerID))
+
+  tmp <- c(SV_integrated$gridss[grepl(SVCaller_name[1],SV_integrated$ID)], SV_integrated$manta[!is.na(SV_integrated[,which(colnames(SV_integrated) == "gridss")])])
+  tmp_callerID <- unique(tmp)
+  tmp_callerID <- tmp_callerID[ID_split=="1"]
+  assign(SVCaller_name[2], unique(tmp_callerID))
+
+  for(i in c(2: length(SVCaller_name))){
+    assign(SVCaller_name[i], SV_integrated$ID[grepl(SVCaller_name[i],SV_integrated$ID)|
+                                                !is.na(SV_integrated[,which(colnames(SV_integrated) == SVCaller_name[i])])])
+  }
+  x <- do.call("list", lapply(SVCaller_name,function(s) eval(parse(text=s))))
+  return(x)
 }

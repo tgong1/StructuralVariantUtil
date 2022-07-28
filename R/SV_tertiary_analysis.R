@@ -20,16 +20,18 @@ SVTYPE_stat_generate <- function(bedpe){
 #' This function read bed format
 #'
 #' @param All_sampleID sample ID
-#' @param vcf_list vcf file names
+#' @param SVdf_list list of SV data.frames
 #' @return data frame
 #' @export
-Summary_SV_type <- function(All_sampleID, vcf_list){
+Summary_SV_type <- function(All_sampleID, SVdf_list){
   summary_results <- c()
   for(i in c(1:length(All_sampleID))){
     sampleID <- All_sampleID[i]
-    vcf_file <- vcf_list[i]
-    SVTYPE_count <- simple_SVTYPE_classification(vcf_file, caller_name = "StructuralVariantUtil")[[2]]
-
+    #vcf_file <- vcf_list[i]
+    #df <- vcf_to_bed(vcf_file)
+    df <- SVdf_list[[i]]
+    SVTYPE_count <- simple_SVTYPE_classification(df, caller_name = "StructuralVariantUtil")[[2]]
+    #SVTYPE_count <- SVTYPE_stat_generate(df)
     all_colnames <- unique(c(colnames(summary_results), colnames(SVTYPE_count)))
 
     SVTYPE_count_tmp <- data.frame(matrix(0, nrow = nrow(SVTYPE_count), ncol = length(all_colnames)))
@@ -64,14 +66,14 @@ Summary_SV_type <- function(All_sampleID, vcf_list){
 #' This function read bed format
 #'
 #' @param All_sampleID sample ID
-#' @param vcf_list vcf file names
+#' @param SVdf_list list of SV data.frame
 #' @param identify_hyperSV_tumour: TRUE or FALSE. Whether to identify hyper-SV mutated tumour samples for large cancer cohort. Default as FALSE.
 #' @param threshold_total threshold of minimum total count of SVs per sample
 #' @param threshold_relative_freq threshold of minimum relative frequency of one SV type
 #' @return data frame of hyper SV
 #' @export
-Spectrum_SV_type <- function(All_sampleID, vcf_list, identify_hyperSV_tumour = FALSE, threshold_total = NULL, threshold_relative_freq = NULL){
-  input_SV_count <- Summary_SV_type(All_sampleID, vcf_list)
+Spectrum_SV_type <- function(All_sampleID, SVdf_list, identify_hyperSV_tumour = FALSE, threshold_total = NULL, threshold_relative_freq = NULL){
+  input_SV_count <- Summary_SV_type(All_sampleID, SVdf_list)
   N_total <- rowSums(input_SV_count[,2:ncol(input_SV_count)])
   if(identify_hyperSV_tumour){
     if(is.null(threshold_total)){
@@ -160,8 +162,8 @@ figure1 <- ggplot2::ggplot(data=df, ggplot2::aes(x=sampleID, y=Count, fill=SVTYP
 #' @param sampleID name of sample
 #' @param SV_bed data frame of SV
 #' @param CNV_bed data frame of CNV segment
-#' @param bedtools_dir bedtools for use
 #' @param overlap_f the fraction of minimum overlap required of CNV segment as a fraction of SV
+#' @param bedtools_dir bedtools for use
 #' @return data frame of SV set
 #' @export
 SV_CNV_integration <- function(sampleID, SV_bed, CNV_bed, overlap_f, bedtools_dir=NULL){

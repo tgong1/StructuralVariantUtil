@@ -4,7 +4,7 @@
 \alias{SV_CNV_integration}
 \title{Integrate SV and CNV}
 \usage{
-SV_CNV_integration(sampleID, SV_bed, CNV_bed, bedtools_dir, overlap_f)
+SV_CNV_integration(sampleID, SV_bed, CNV_bed, overlap_f, bedtools_dir = NULL)
 }
 \arguments{
 \item{sampleID}{name of sample}
@@ -13,9 +13,9 @@ SV_CNV_integration(sampleID, SV_bed, CNV_bed, bedtools_dir, overlap_f)
 
 \item{CNV_bed}{data frame of CNV segment}
 
-\item{bedtools_dir}{bedtools for use}
-
 \item{overlap_f}{the fraction of minimum overlap required of CNV segment as a fraction of SV}
+
+\item{bedtools_dir}{bedtools for use}
 }
 \value{
 data frame of SV set

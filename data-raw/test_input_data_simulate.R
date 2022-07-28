@@ -55,7 +55,7 @@ bed_test <- data.frame(CHROM = bed$CHROM,
 usethis::use_data(bed_test,overwrite = TRUE)
 
 
-### Test data for SV integration
+### Test data for SV integration, NOT USE, SV_integration now use VCF_list as input
 vcf_file <- system.file("extdata",
                         "lumpy_SVEngine_TumorSV2.60x_NormalSV1.60x_0.5_TumorminSU4.vcf",
                         package = "ShinySoSV2")
@@ -73,6 +73,24 @@ vcf_file <- system.file("extdata",
                         package = "ShinySoSV2")
 CallerC_bed <- simple_SVTYPE_classification(bed = vcf_to_bed(vcf_file), "CallerC")
 usethis::use_data(CallerC_bed,overwrite = TRUE)
+
+###Test data for SV type composition
+vcf_file <- "manta_SVEngine_TumorSV2.60x_NormalSV1.60x_0.5.T.PASS.recode.vcf"
+vcf <- VariantAnnotation::readVcf(vcf_file)
+ID <- vcf@rowRanges@ranges@NAMES
+set.seed(1)
+vcf_tmp <- vcf[vcf@rowRanges@ranges@NAMES %in% ID[sample(1:length(ID),40)],]
+VariantAnnotation::writeVcf(vcf_tmp, "manta_sample1.vcf")
+vcf_tmp <- vcf[vcf@rowRanges@ranges@NAMES %in% ID[sample(1:length(ID),50)],]
+VariantAnnotation::writeVcf(vcf_tmp, "manta_sample2.vcf")
+vcf_tmp <- vcf[vcf@rowRanges@ranges@NAMES %in% ID[sample(1:length(ID),100)],]
+VariantAnnotation::writeVcf(vcf_tmp, "manta_sample3.vcf")
+
+vcf_file <- system.file("extdata",
+                        "manta_SVEngine_TumorSV2.60x_NormalSV1.60x_0.5.T.PASS.recode.vcf",
+                        package = "ShinySoSV2")
+bed <- vcf_to_dataframe(vcf_file)
+
 
 ###Test data for Sv type composition, NOT USE, three manta VCFs used
 generateRandomPos <- function(n,chr,chr.sizes,width,strand){
@@ -114,7 +132,7 @@ for(i in c(1: nrow(input_SV_count))){
                 "/Users/tingtinggong/Desktop/work_at_home/HRPCa_SV_method_paper/TEST_R_script/",
                 "random_",input_SV_count$sampleID[i],".bed"))
 
-  random_sample.bed <- read.table(paste0("random_",input_SV_count$sampleID[i],".bed"))
+  random_sample.bed <- read.table(paste0("/Users/tingtinggong/Desktop/work_at_home/HRPCa_SV_method_paper/TEST_R_script/","random_",input_SV_count$sampleID[i],".bed"))
   colnames(random_sample.bed) <- c("chrom1","pos1","pos2","SVLEN","strand1","SVTYPE")
 
   n_TRA <- sum(random_sample.bed$SVTYPE == "TRA")/2
@@ -129,10 +147,27 @@ for(i in c(1: nrow(input_SV_count))){
                    SVTYPE = random_sample.bed$SVTYPE[1:(n_total_tmp-n_TRA)],
                    SVLEN = random_sample.bed$SVLEN[1:(n_total_tmp-n_TRA)],
                    strand = random_sample.bed$strand1[1:(n_total_tmp-n_TRA)])
-  assign(paste0(All_sampleID[i], "_df"), df[!(df$SVTYPE == "TRA" & (df$chrom1 == df$chrom2)),])
+  df <- df[!(df$SVTYPE == "TRA" & (df$chrom1 == df$chrom2)),]
+  #assign(paste0(All_sampleID[i], "_df"), df)
+  df$CHROM = df$chrom1
+  df$POS = df$pos1
+  set.seed(1000)
+  df$REF = sample(c ("A", "T", "C", "G") ,
+                  nrow(df),
+                  replace=TRUE,
+                  prob=c(0.25, 0.25, 0.25, 0.25))
+
+  df$ALT <- paste0(df$REF,"[",df$chrom2,":",df$pos2,"[")
+  df$ALT[df$SVTYPE =="DUP"] <- paste0("]",df$chrom2[df$SVTYPE =="DUP"],":",df$pos2[df$SVTYPE =="DUP"],"]",df$REF[df$SVTYPE =="DUP"])
+  df$ALT[df$SVTYPE =="INV"] <- paste0(df$REF[df$SVTYPE =="INV"],"]",df$chrom2[df$SVTYPE =="INV"],":",df$pos2[df$SVTYPE =="INV"],"]")
+
+  df$INFO_SVTYPE <- df$SVTYPE
+  assign(paste0(All_sampleID[i], "_df"), df[,c(10:14)])
 }
+
+
 #save(list = paste0(All_sampleID, "_df"), file = "./input_SV_bed.RData")
-do.call(usethis::use_data, c(lapply(paste0(All_sampleID, "_df"), as.name),overwrite = TRUE))
+#do.call(usethis::use_data, c(lapply(paste0(All_sampleID, "_df"), as.name),overwrite = TRUE))
 list <- do.call(list, lapply(paste0(All_sampleID, "_df"), as.name))
 list <- setNames(list, paste0(All_sampleID, "_df"))
 usethis::use_data(list, overwrite = TRUE)

@@ -6,7 +6,7 @@
 \usage{
 Spectrum_SV_type(
   All_sampleID,
-  vcf_list,
+  SVdf_list,
   identify_hyperSV_tumour = FALSE,
   threshold_total = NULL,
   threshold_relative_freq = NULL
@@ -15,7 +15,7 @@ Spectrum_SV_type(
 \arguments{
 \item{All_sampleID}{sample ID}
 
-\item{vcf_list}{vcf file names}
+\item{SVdf_list}{list of SV data.frame}
 
 \item{threshold_total}{threshold of minimum total count of SVs per sample}
 

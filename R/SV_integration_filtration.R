@@ -5,7 +5,7 @@
 #' @param vcf_file names of vcf file
 #' @return data frame
 #' @export
-vcf_to_bed <- function(vcf_file){
+vcf_to_dataframe <- function(vcf_file){
   vcf <- VariantAnnotation::readVcf(vcf_file)
 
   fixed_df <- vcf@fixed
@@ -52,13 +52,13 @@ vcf_to_bed <- function(vcf_file){
 #'
 #' This function read bed format
 #'
-#' @param vcf_file names of vcf file
+#' @param df SV in data.frame
 #' @param caller_name name of caller to be used in ID
 #' @return data frame
 #' @export
-simple_SVTYPE_classification <- function(vcf_file, caller_name){
-  bed <- vcf_to_bed(vcf_file)
-  bedpe <- bed_to_bedpe(bed)
+simple_SVTYPE_classification <- function(df, caller_name){
+  #bed <- vcf_to_bed(vcf_file)
+  bedpe <- bed_to_bedpe(df)
   if(length(bedpe$ID_caller)!=0){
     bedpe <- bedpe[is.na(match(bedpe$ID_caller, bedpe$INFO_MATEID_caller)) | ### either don't have mate (i.e. not BND)
                      (c(1:nrow(bedpe)) < match(bedpe$ID_caller, bedpe$INFO_MATEID_caller)),] ###  or present first as BND
@@ -126,7 +126,9 @@ SV_integration <- function(SVCaller_name, vcf_list, sampleID = "sample", bkpt_T_
 
     SVCaller_bed_name <- list()
     for(i in c(1:length(SVCaller_name))){
-      results <- simple_SVTYPE_classification(vcf_file = vcf_list[i], caller_name = SVCaller_name[i])
+      vcf_file <- vcf_list[i]
+      df <- vcf_to_bed(vcf_file)
+      results <- simple_SVTYPE_classification(df, caller_name = SVCaller_name[i])
       tmp <- results[[1]]
       tmp <- tmp[tmp$chrom1 %in% paste0("chr", c(1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,"X","Y")),]
       SVCaller_bed_name[[i]] <- tmp
