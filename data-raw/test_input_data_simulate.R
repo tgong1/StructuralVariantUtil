@@ -99,11 +99,11 @@ generateRandomPos <- function(n,chr,chr.sizes,width,strand){
 All_sampleID <- paste0("sample_",c(1:100))
 set.seed(1)
 input_SV_count <- data.frame(sampleID = All_sampleID,
-                             DEL = sample.int(300, 100, replace = TRUE),
-                             DUP = sample.int(300, 100, replace = TRUE),
-                             INS = sample.int(100, 100, replace = TRUE),
-                             INV = sample.int(300, 100, replace = TRUE),
-                             TRA = sample.int(300, 100, replace = TRUE))
+                             DEL = c(sample(300, 95, replace = TRUE),sample(c(500:1000), 5, replace = TRUE)),
+                             DUP = sample(300, 100, replace = TRUE),
+                             INS = sample(100, 100, replace = TRUE),
+                             INV = sample(300, 100, replace = TRUE),
+                             TRA = sample(300, 100, replace = TRUE))
 for(i in c(1: nrow(input_SV_count))){
   sample_tmp_bed <- c()
   for(SVTYPE in colnames(input_SV_count)[2:ncol(input_SV_count)]){
@@ -165,7 +165,7 @@ for(i in c(1: nrow(input_SV_count))){
 #save(list = paste0(All_sampleID, "_df"), file = "./input_SV_bed.RData")
 #do.call(usethis::use_data, c(lapply(paste0(All_sampleID, "_df"), as.name),overwrite = TRUE))
 list <- do.call(list, lapply(paste0(All_sampleID, "_df"), as.name))
-list <- setNames(list, paste0(All_sampleID, "_df"))
+#list <- setNames(list, paste0(All_sampleID, "_df"))
 usethis::use_data(list, overwrite = TRUE)
 
 ######Test data for SV spectrum NOT USE!!!!!

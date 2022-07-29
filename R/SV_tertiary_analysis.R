@@ -89,8 +89,12 @@ Spectrum_SV_type <- function(All_sampleID, SVdf_list, identify_hyperSV_tumour = 
                  relative_freq = df$count/(rep(N_total,(ncol(input_SV_count)-1))),
                  total_count = rep(N_total,(ncol(input_SV_count)-1)))
     hyper_SV <- df2[df2$relative_freq > threshold_relative_freq & df2$total_count > threshold_total,]
-    hyper_SV$HYPER_SVTYPE <- paste0("hyper-", hyper_SV$SVTYPE)
-    hyper_SV <- hyper_SV[,-1]
+    if(nrow(hyper_SV)!=0){
+      hyper_SV$HYPER_SVTYPE <- paste0("hyper-", hyper_SV$SVTYPE)
+      hyper_SV <- hyper_SV[,-1]
+    }else{
+      cat(paste0('No hyper-SV tumour samples found.\n') )
+    }
     return(list(input_SV_count, hyper_SV))
   }else{
     return(list(input_SV_count))
