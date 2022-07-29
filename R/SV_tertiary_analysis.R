@@ -164,16 +164,17 @@ figure1 <- ggplot2::ggplot(data=df, ggplot2::aes(x=sampleID, y=Count, fill=SVTYP
 #' This function integrate deletion and duplication with copy number segments
 #'
 #' @param sampleID name of sample
-#' @param SV_bed data frame of SV
-#' @param CNV_bed data frame of CNV segment
+#' @param SV_data data frame of SV
+#' @param CNV_data data frame of CNV segment
 #' @param overlap_f the fraction of minimum overlap required of CNV segment as a fraction of SV
 #' @param bedtools_dir bedtools for use
 #' @return data frame of SV set
 #' @export
-SV_CNV_integration <- function(sampleID, SV_bed, CNV_bed, overlap_f, bedtools_dir=NULL){
+SV_CNV_integration <- function(sampleID, SV_data, CNV_data, overlap_f=NULL, bedtools_dir=NULL){
   directory <- "./"
   sub_directory <- paste0("./tmp/")
   dir.create(sub_directory)
+  if(is.null(overlap_f)){overlap_f = 0.5}
   if(is.null(bedtools_dir)){bedtools_dir <- Check_bedtools(x = "bedtools")}else{cat(paste0("Provided path for bedtools ... \n", bedtools_dir,"\n"))}
   if(is.null(bedtools_dir) | bedtools_dir == ""){cat(paste0("ERROR: Please provide the bedtools path.\n"))}else{
   assign(paste0(sampleID, "_CNV_tmp.bed"), data.frame(chrom = CNV_bed$chrom,

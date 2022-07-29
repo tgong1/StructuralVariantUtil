@@ -183,8 +183,8 @@ usethis::use_data(input_SV_count, overwrite = TRUE)
 #                               "CNV_sample4.cns",
 #                               package = "StructuralVariantUtil"), header = TRUE)
 SCNV <- read.table("./inst/extdata/CNV_sample4.cns",header=TRUE)
-CNV_bed <- SCNV[,c(1,2,3,6)]
-usethis::use_data(CNV_bed, overwrite = TRUE)
+CNV_data <- SCNV[,c(1,2,3,6)]
+usethis::use_data(CNV_data, overwrite = TRUE)
 
 #bedpe <- read.table(system.file("extdata",
 #                                "UP2003_Manta_GRIDSS_intersect_both_high_confidence.bedpe",
