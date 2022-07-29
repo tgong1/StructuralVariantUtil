@@ -86,10 +86,6 @@ VariantAnnotation::writeVcf(vcf_tmp, "manta_sample2.vcf")
 vcf_tmp <- vcf[vcf@rowRanges@ranges@NAMES %in% ID[sample(1:length(ID),100)],]
 VariantAnnotation::writeVcf(vcf_tmp, "manta_sample3.vcf")
 
-vcf_file <- system.file("extdata",
-                        "manta_SVEngine_TumorSV2.60x_NormalSV1.60x_0.5.T.PASS.recode.vcf",
-                        package = "ShinySoSV2")
-bed <- vcf_to_dataframe(vcf_file)
 
 
 ###Test data for Sv type composition, NOT USE, three manta VCFs used

@@ -127,7 +127,7 @@ SV_integration <- function(SVCaller_name, vcf_list, sampleID = "sample", bkpt_T_
     SVCaller_bed_name <- list()
     for(i in c(1:length(SVCaller_name))){
       vcf_file <- vcf_list[i]
-      df <- vcf_to_bed(vcf_file)
+      df <- vcf_to_dataframe(vcf_file)
       results <- simple_SVTYPE_classification(df, caller_name = SVCaller_name[i])
       tmp <- results[[1]]
       tmp <- tmp[tmp$chrom1 %in% paste0("chr", c(1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,"X","Y")),]
