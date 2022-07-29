@@ -178,9 +178,9 @@ input_SV_count <- data.frame(sampleID = paste0("sample_",c(1:100)),
                              TRA = sample.int(300, 100, replace = TRUE))
 usethis::use_data(input_SV_count, overwrite = TRUE)
 
-###Test data for CNV integration, currently use sample UP2003 in HRPCa project
+###Test data for CNV integration, currently use sample UP2003 in HRPCa project, re-named as sample4
 SCNV <- read.table(system.file("extdata",
-                               "UP2003-T.final.call.threshold.cns",
+                               "CNV_sample4.cns",
                                package = "StructuralVariantUtil"), header = TRUE)
 CNV_bed <- SCNV[,c(1,2,3,6)]
 usethis::use_data(CNV_bed, overwrite = TRUE)

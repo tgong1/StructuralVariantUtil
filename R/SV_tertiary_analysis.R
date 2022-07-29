@@ -360,9 +360,6 @@ Spectrum_SV_bin <- function(df_breakpoints){
 #' @export
 Spectrum_SV_bin_define_hotspot <- function(df_breakpoints, threshold_count_breakpoint=NULL, threshold_count_sample=NULL){
   df_bin_all <- Spectrum_SV_bin(df_breakpoints)
-  #head(df_bin_all)
-  ##### add HOTSPOT information
-
   df3 <- df_bin_all
   df3 <- df3[!duplicated(df3$chrom_bin_labels),]
 
@@ -370,27 +367,11 @@ Spectrum_SV_bin_define_hotspot <- function(df_breakpoints, threshold_count_break
   summary_count_bkpts <- summary(df3$count_breakpoints)
   summary_count_samples <- summary(df3$count_sample)
 
-    if(is.null(threshold_count_breakpoint)){
-      threshold_count_breakpoint <- summary_count_bkpts[5] + 3*(summary_count_bkpts[5] - summary_count_bkpts[2])
-    }
-    if(is.null(threshold_count_sample)){
-      threshold_count_sample <- summary_count_samples[5] + 1.5*(summary_count_samples[5] - summary_count_samples[2])
-    }
+  if(is.null(threshold_count_breakpoint)){threshold_count_breakpoint <- 1.5}
+  if(is.null(threshold_count_sample)){threshold_count_sample <- 1.5}
 
-
-  # SV_hotspots <- rbind(df3[df3$count_breakpoints>mean(df3$count_breakpoints)+threshold_count_breakpoint*sd(df3$count_breakpoints),],
-  #                      df3[df3$count_sample>mean(df3$count_sample)+threshold_count_sample*sd(df3$count_sample),])
-  #
-  # hotspots <- unique(SV_hotspots$chrom_bin_labels)
-  # df_bin_all_hotspot <- data.frame(df_bin_all,
-  #                                  is_hotspot_breakpoint = df_bin_all$chrom_bin_labels %in% df3[df3$count_breakpoints>mean(df3$count_breakpoints)+threshold_count_breakpoint*sd(df3$count_breakpoints),]$chrom_bin_labels,
-  #                                  is_hotspot_sample = df_bin_all$chrom_bin_labels %in% df3[df3$count_sample>mean(df3$count_sample)+threshold_count_sample*sd(df3$count_sample),]$chrom_bin_labels,
-  #                                  is_hotspot = df_bin_all$chrom_bin_labels %in% hotspots)
-  #
-
-  df3_hotspots_bkpts <- df3[df3$count_breakpoints > threshold_count_breakpoint,]
-  df3_hotspots_samples <- df3[df3$count_sample> threshold_count_sample,]
-  ###
+  df3_hotspots_bkpts <- df3[df3$count_breakpoints > summary_count_bkpts[5] + threshold_count_breakpoint*(summary_count_bkpts[5] - summary_count_bkpts[2]),]
+  df3_hotspots_samples <- df3[df3$count_sample> summary_count_samples[5] + threshold_count_sample*(summary_count_samples[5] - summary_count_samples[2]),]
 
   SV_hotspots <- rbind(df3_hotspots_bkpts, df3_hotspots_samples)
   hotspots <- unique(SV_hotspots$chrom_bin_labels)
@@ -398,9 +379,7 @@ Spectrum_SV_bin_define_hotspot <- function(df_breakpoints, threshold_count_break
   df_bin_all$is_hotspot_breakpoint = df_bin_all$chrom_bin_labels %in% df3_hotspots_bkpts$chrom_bin_labels
   df_bin_all$is_hotspot_sample = df_bin_all$chrom_bin_labels %in% df3_hotspots_samples$chrom_bin_labels
   df_bin_all$is_hotspot = df_bin_all$chrom_bin_labels %in% hotspots
-
-  #df_bin_hotspots <- df_bin_all[df_bin_all$is_hotspot,]
-    return(df_bin_all)
+  return(df_bin_all)
 }
 
 #' Plot genomic bins hotspots
