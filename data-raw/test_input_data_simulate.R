@@ -179,17 +179,18 @@ input_SV_count <- data.frame(sampleID = paste0("sample_",c(1:100)),
 usethis::use_data(input_SV_count, overwrite = TRUE)
 
 ###Test data for CNV integration, currently use sample UP2003 in HRPCa project, re-named as sample4
-SCNV <- read.table(system.file("extdata",
-                               "CNV_sample4.cns",
-                               package = "StructuralVariantUtil"), header = TRUE)
+#SCNV <- read.table(system.file("extdata",
+#                               "CNV_sample4.cns",
+#                               package = "StructuralVariantUtil"), header = TRUE)
+SCNV <- read.table("./inst/extdata/CNV_sample4.cns",header=TRUE)
 CNV_bed <- SCNV[,c(1,2,3,6)]
 usethis::use_data(CNV_bed, overwrite = TRUE)
 
-bedpe <- read.table(system.file("extdata",
-                                "UP2003_Manta_GRIDSS_intersect_both_high_confidence.bedpe",
-                                package = "StructuralVariantUtil"), header = TRUE)
-SV_bed <- bedpe[,c(1:10)]
-usethis::use_data(SV_bed, overwrite = TRUE)
+#bedpe <- read.table(system.file("extdata",
+#                                "UP2003_Manta_GRIDSS_intersect_both_high_confidence.bedpe",
+#                                package = "StructuralVariantUtil"), header = TRUE)
+#SV_bed <- bedpe[,c(1:10)]
+#usethis::use_data(SV_bed, overwrite = TRUE)
 
 
 #data(CallerA_bed)
