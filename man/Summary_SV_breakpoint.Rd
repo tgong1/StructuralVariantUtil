@@ -4,12 +4,12 @@
 \alias{Summary_SV_breakpoint}
 \title{SV breakpoints summary for all samples}
 \usage{
-Summary_SV_breakpoint(All_sampleID, All_input_df_name)
+Summary_SV_breakpoint(All_sampleID, SVdf_list)
 }
 \arguments{
 \item{All_sampleID}{sample ID for all samples}
 
-\item{All_input_df_name}{names of all bed in df}
+\item{SVdf_list}{names of all bed in df}
 }
 \value{
 data frame of SV set

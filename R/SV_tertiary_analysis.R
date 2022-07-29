@@ -97,7 +97,7 @@ Spectrum_SV_type <- function(All_sampleID, SVdf_list, identify_hyperSV_tumour = 
     }
     return(list(input_SV_count, hyper_SV))
   }else{
-    return(list(input_SV_count))
+    return(input_SV_count)
   }
 }
 #' Spectrum of SV figures
@@ -294,14 +294,16 @@ SV_bedpe_gene_annotation <- function(input_df_name, gene_bed, bedtools_dir){
 #' This function put all sample SV breakpoints together
 #'
 #' @param All_sampleID sample ID for all samples
-#' @param All_input_df_name names of all bed in df
+#' @param SVdf_list names of all bed in df
 #' @return data frame of SV set
 #' @export
-Summary_SV_breakpoint <- function(All_sampleID, All_input_df_name){
+Summary_SV_breakpoint <- function(All_sampleID, SVdf_list){
   df_breakpoints <- c()
   for(i in c(1 : length(All_sampleID))){
     sampleID <- All_sampleID[i]
-    bedpe <- eval(parse(text = All_input_df_name[i]))
+    #bedpe <- eval(parse(text = All_input_df_name[i]))
+    df <- SVdf_list[[i]]
+    bedpe <- simple_SVTYPE_classification(df, caller_name = "StructuralVariantUtil")[[1]]
     if(nrow(bedpe) != 0){
       df_breakpoints <- rbind(df_breakpoints,
                               data.frame(sampleID = sampleID,
@@ -356,22 +358,49 @@ Spectrum_SV_bin <- function(df_breakpoints){
 #' @param  threshold_count_sample threshold of number of samples
 #' @return data frame of SV set
 #' @export
-Spectrum_SV_bin_define_hotspot <- function(df_breakpoints, threshold_count_breakpoint, threshold_count_sample){
+Spectrum_SV_bin_define_hotspot <- function(df_breakpoints, threshold_count_breakpoint=NULL, threshold_count_sample=NULL){
   df_bin_all <- Spectrum_SV_bin(df_breakpoints)
   #head(df_bin_all)
   ##### add HOTSPOT information
-  df2 <- df_bin_all
-  df3 <- df2
-  df3 <- df3[!duplicated(df3$chrom_bin_labels),]
-  SV_hotspots <- rbind(df3[df3$count_breakpoints>mean(df3$count_breakpoints)+threshold_count_breakpoint*sd(df3$count_breakpoints),],
-                       df3[df3$count_sample>mean(df3$count_sample)+threshold_count_sample*sd(df3$count_sample),])
 
+  df3 <- df_bin_all
+  df3 <- df3[!duplicated(df3$chrom_bin_labels),]
+
+  ###Tukey's fence method
+  summary_count_bkpts <- summary(df3$count_breakpoints)
+  summary_count_samples <- summary(df3$count_sample)
+
+    if(is.null(threshold_count_breakpoint)){
+      threshold_count_breakpoint <- summary_count_bkpts[5] + 3*(summary_count_bkpts[5] - summary_count_bkpts[2])
+    }
+    if(is.null(threshold_count_sample)){
+      threshold_count_sample <- summary_count_samples[5] + 1.5*(summary_count_samples[5] - summary_count_samples[2])
+    }
+
+
+  # SV_hotspots <- rbind(df3[df3$count_breakpoints>mean(df3$count_breakpoints)+threshold_count_breakpoint*sd(df3$count_breakpoints),],
+  #                      df3[df3$count_sample>mean(df3$count_sample)+threshold_count_sample*sd(df3$count_sample),])
+  #
+  # hotspots <- unique(SV_hotspots$chrom_bin_labels)
+  # df_bin_all_hotspot <- data.frame(df_bin_all,
+  #                                  is_hotspot_breakpoint = df_bin_all$chrom_bin_labels %in% df3[df3$count_breakpoints>mean(df3$count_breakpoints)+threshold_count_breakpoint*sd(df3$count_breakpoints),]$chrom_bin_labels,
+  #                                  is_hotspot_sample = df_bin_all$chrom_bin_labels %in% df3[df3$count_sample>mean(df3$count_sample)+threshold_count_sample*sd(df3$count_sample),]$chrom_bin_labels,
+  #                                  is_hotspot = df_bin_all$chrom_bin_labels %in% hotspots)
+  #
+
+  df3_hotspots_bkpts <- df3[df3$count_breakpoints > threshold_count_breakpoint,]
+  df3_hotspots_samples <- df3[df3$count_sample> threshold_count_sample,]
+  ###
+
+  SV_hotspots <- rbind(df3_hotspots_bkpts, df3_hotspots_samples)
   hotspots <- unique(SV_hotspots$chrom_bin_labels)
-  df_bin_all_hotspot <- data.frame(df_bin_all,
-                                   is_hotspot_breakpoint = df_bin_all$chrom_bin_labels %in% df3[df3$count_breakpoints>mean(df3$count_breakpoints)+threshold_count_breakpoint*sd(df3$count_breakpoints),]$chrom_bin_labels,
-                                   is_hotspot_sample = df_bin_all$chrom_bin_labels %in% df3[df3$count_sample>mean(df3$count_sample)+threshold_count_sample*sd(df3$count_sample),]$chrom_bin_labels,
-                                   is_hotspot = df_bin_all$chrom_bin_labels %in% hotspots)
-  return(df_bin_all_hotspot)
+
+  df_bin_all$is_hotspot_breakpoint = df_bin_all$chrom_bin_labels %in% df3_hotspots_bkpts$chrom_bin_labels
+  df_bin_all$is_hotspot_sample = df_bin_all$chrom_bin_labels %in% df3_hotspots_samples$chrom_bin_labels
+  df_bin_all$is_hotspot = df_bin_all$chrom_bin_labels %in% hotspots
+
+  #df_bin_hotspots <- df_bin_all[df_bin_all$is_hotspot,]
+    return(df_bin_all)
 }
 
 #' Plot genomic bins hotspots
@@ -392,7 +421,8 @@ plot_ideograms <- function(df_bin_all_hotspots){
 
   chrom_all <- c("chr1","chr2","chr3","chr4","chr5","chr6","chr7","chr8","chr9","chr10","chr11","chr12",
                  "chr13","chr14","chr15","chr16","chr17","chr18","chr19","chr20","chr21","chr22","chrX")
-
+  max_count_breakpoints <- max(df2$count_breakpoints)
+  max_count_samples <- max(df2$count_sample)
   png(file="./SV_breakpoints_ideogram_byBins.png",width=2000,height=550)
   kp <- karyoploteR::plotKaryotype("hg38", chromosomes = chrom_all, plot.type = 4, cex = 1.5, srt = 30)
   karyoploteR::kpAddBaseNumbers(kp, tick.dist = 50000000)
@@ -402,11 +432,11 @@ plot_ideograms <- function(df_bin_all_hotspots){
     for(j in c(1,2)){
       df_tmp <- df2[df2$chrom==chrom_all[i] & df2$is_hotspot_breakpoint == is_hotspot[j],]
       x <- df_tmp$breaks
-      y <- df_tmp$count_breakpoints/120
+      y <- df_tmp$count_breakpoints/(max_count_breakpoints+1)
       karyoploteR::kpPoints(kp, chr=chrom_all[i], x=x, y=y, data.panel = 1, col = col_all[j],  cex=cex_all[j])
     }
   }
-  karyoploteR::kpAxis(kp, ymin=0, ymax=120,numticks = 3, data.panel = 1, cex = 1.5)
+  karyoploteR::kpAxis(kp, ymin=0, ymax=max_count_breakpoints + 1,numticks = max_count_breakpoints+2, data.panel = 1, cex = 1.5)
   dev.off()
 
   ######## ideogram with sample counts for each chromosome by bins
@@ -426,11 +456,11 @@ plot_ideograms <- function(df_bin_all_hotspots){
       df_tmp <- df3[df3$chrom==chrom_all[i] & df3$is_hotspot_sample == is_hotspot[j],]
       #x <- df_tmp$pos
       x <- df_tmp$breaks
-      y <- df_tmp$count_sample/50
+      y <- df_tmp$count_sample/(max_count_samples+1)
       karyoploteR::kpPoints(kp, chr=chrom_all[i], x=x, y=y, data.panel = 2, col = col_all[j], cex=cex_all[j])
     }
   }
-  karyoploteR::kpAxis(kp, ymin=0, ymax=50,numticks = 3, data.panel = 2, cex = 1.5)
+  karyoploteR::kpAxis(kp, ymin=0, ymax=max_count_samples+1, numticks = max_count_samples+2, data.panel = 2, cex = 1.5)
   dev.off()
 }
 
@@ -439,16 +469,16 @@ plot_ideograms <- function(df_bin_all_hotspots){
 #' Define hotspots
 #'
 #' @param All_sampleID sample ID for all samples
-#' @param All_input_df_name names of all bed in df
-#' @param  threshold_count_breakpoint threshold of number of SD
-#' @param  threshold_count_sample threshold of number of samples
+#' @param SVdf_list list of SVs in df
+#' @param threshold_count_breakpoint threshold of number of SD
+#' @param threshold_count_sample threshold of number of samples
 #' @return data frame of genomic bins with hotspots defined
 #' @export
-Spectrum_SV_bin_generate <- function(All_sampleID, All_input_df_name, threshold_count_breakpoint,threshold_count_sample){
-  df_breakpoints <- Summary_SV_breakpoint(All_sampleID, All_input_df_name) ### put all bed df together
-  df_bin_all <- Spectrum_SV_bin(df_breakpoints) ### generate genomic bins
+Spectrum_SV_breakpoint <- function(All_sampleID, SVdf_list, threshold_count_breakpoint = NULL,threshold_count_sample = NULL){
+  df_breakpoints <- Summary_SV_breakpoint(All_sampleID, SVdf_list) ### put all bed df together
+  #df_bin_all <- Spectrum_SV_bin(df_breakpoints) ### generate genomic bins
   df_bin_all_hotspots <- Spectrum_SV_bin_define_hotspot(df_breakpoints, threshold_count_breakpoint,threshold_count_sample) ##### define genomic bins and add HOTSPOT information
-  write.table(df_bin_all_hotspots,"./df_bin_all_hotspots.txt", quote=FALSE, sep='\t', row.names=FALSE, col.names=TRUE)
+  #write.table(df_bin_all_hotspots,"./df_bin_all_hotspots.txt", quote=FALSE, sep='\t', row.names=FALSE, col.names=TRUE)
   plot_ideograms(df_bin_all_hotspots) ### SV hotspot visualisation
   return(df_bin_all_hotspots)
 }

@@ -6,8 +6,8 @@
 \usage{
 Spectrum_SV_bin_define_hotspot(
   df_breakpoints,
-  threshold_count_breakpoint,
-  threshold_count_sample
+  threshold_count_breakpoint = NULL,
+  threshold_count_sample = NULL
 )
 }
 \arguments{
