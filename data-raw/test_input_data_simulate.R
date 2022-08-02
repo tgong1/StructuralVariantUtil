@@ -192,6 +192,14 @@ usethis::use_data(CNV_data, overwrite = TRUE)
 #SV_bed <- bedpe[,c(1:10)]
 #usethis::use_data(SV_bed, overwrite = TRUE)
 
+gr <- rtracklayer::import("/scratch/gq19/tg2182/HYPER-DUP/R_script/homo_sapiens/Homo_sapiens.GRCh38.99.gtf")
+bed <- Repitools::annoGR2DF(gr)
+bed_gene <- bed[bed$type == "gene",]
+bed_gene$chr <- paste0("chr", bed_gene$chr)
+write.table(bed_gene, paste0("/scratch/gq19/tg2182/HYPER-DUP/R_script/","ensembl_release99_gene",".bed"), quote=FALSE, sep='\t', row.names=FALSE, col.names=TRUE)
+
+read.table()
+usethis::use_data(SV_bed, overwrite = TRUE)
 
 #data(CallerA_bed)
 #load(system.file("extdata", "gene_bed.Rdata", package = "ShinySoSV2"))
