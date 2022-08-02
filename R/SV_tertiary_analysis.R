@@ -390,36 +390,39 @@ Spectrum_SV_breakpoint <- function(All_sampleID, SVdf_list, threshold_count_brea
 #' @return data frame of intersection set between SV and gene regions
 #' @export
 SV_breakpoint_gene_annotation <- function(SV_data, gene_bed, bedtools_dir){
-  directory <- "./"
-  sub_directory <- paste0("./tmp/")
-  dir.create(sub_directory)
+  if(is.null(bedtools_dir)){bedtools_dir <- Check_bedtools(x = "bedtools")}else{cat(paste0("Provided path for bedtools ... \n", bedtools_dir,"\n"))}
+  if(is.null(bedtools_dir) | bedtools_dir == ""){cat(paste0("ERROR: Please provide the bedtools path.\n"))}else{
+    directory <- "./"
+    sub_directory <- paste0("./tmp/")
+    dir.create(sub_directory)
 
-  gene_file <- paste0(sub_directory,"gene","_tmp.bed")
-  write.table(gene_bed, gene_file, quote=FALSE, sep='\t', row.names=FALSE, col.names=TRUE)
-  bedpe <- SV_data
-  if(nrow(bedpe) !=0){
-    bedpe$chrom1 <- as.character(bedpe$chrom1)
-    bedpe$chrom2 <- as.character(bedpe$chrom2)
-    bedpe$ID <- as.character(bedpe$ID)
-    bedpe$ID_mate <- as.character(bedpe$ID_mate)
+    gene_file <- paste0(sub_directory,"gene","_tmp.bed")
+    write.table(gene_bed, gene_file, quote=FALSE, sep='\t', row.names=FALSE, col.names=TRUE)
+    bedpe <- SV_data
+    if(nrow(bedpe) !=0){
+      bedpe$chrom1 <- as.character(bedpe$chrom1)
+      bedpe$chrom2 <- as.character(bedpe$chrom2)
+      bedpe$ID <- as.character(bedpe$ID)
+      bedpe$ID_mate <- as.character(bedpe$ID_mate)
 
-    SV_bed <- data.frame(chrom = c(bedpe$chrom1, bedpe$chrom2),
-                         start = c(bedpe$pos1-1, bedpe$pos2-1),
-                         end = c(bedpe$pos1, bedpe$pos2),
-                         SVTYPE = c(bedpe$SVTYPE, bedpe$SVTYPE),
-                         ID = c(bedpe$ID, bedpe$ID_mate))
+      SV_bed <- data.frame(chrom = c(bedpe$chrom1, bedpe$chrom2),
+                           start = c(bedpe$pos1-1, bedpe$pos2-1),
+                           end = c(bedpe$pos1, bedpe$pos2),
+                           SVTYPE = c(bedpe$SVTYPE, bedpe$SVTYPE),
+                           ID = c(bedpe$ID, bedpe$ID_mate))
 
-    write.table(SV_bed, paste0(sub_directory,"SV_tmp.bed"), quote=FALSE, sep='\t', row.names=FALSE, col.names=FALSE)
+      write.table(SV_bed, paste0(sub_directory,"SV_tmp.bed"), quote=FALSE, sep='\t', row.names=FALSE, col.names=FALSE)
 
-    intersect_file <- paste0(directory,"SV_gene","_intersect.bed")
-    system(paste(bedtools_dir,"intersect -a", paste0(sub_directory,"SV_tmp.bed"),
-                 "-b", gene_file,
-                 "-wo >", intersect_file))
-    intersect <- read.table(intersect_file,header = FALSE, sep="\t",stringsAsFactors=FALSE, quote="")
-    colnames(intersect) <- c("SV_chrom", "SV_start","SV_end","SVTYPE", "SV_ID",
-                             colnames(gene_bed),"overlap")
-  }else{
-    intersect <- c()
+      intersect_file <- paste0(directory,"SV_gene","_intersect.bed")
+      system(paste(bedtools_dir,"intersect -a", paste0(sub_directory,"SV_tmp.bed"),
+                   "-b", gene_file,
+                   "-wo >", intersect_file))
+      intersect <- read.table(intersect_file,header = FALSE, sep="\t",stringsAsFactors=FALSE, quote="")
+      colnames(intersect) <- c("SV_chrom", "SV_start","SV_end","SVTYPE", "SV_ID",
+                               colnames(gene_bed),"overlap")
+    }else{
+      intersect <- c()
+    }
   }
   return(intersect)
 }
