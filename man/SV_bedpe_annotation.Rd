@@ -4,7 +4,7 @@
 \alias{SV_bedpe_annotation}
 \title{SV breakpoints gene annotation on input bed format}
 \usage{
-SV_bedpe_annotation(SV_data, gene_bed, bedtools_dir)
+SV_bedpe_annotation(SV_data, gene_bed, bedtools_dir = NULL)
 }
 \arguments{
 \item{SV_data}{input SV data frame}

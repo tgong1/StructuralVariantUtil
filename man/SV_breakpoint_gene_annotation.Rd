@@ -4,7 +4,7 @@
 \alias{SV_breakpoint_gene_annotation}
 \title{SV breakpoints gene annotation}
 \usage{
-SV_breakpoint_gene_annotation(SV_data, gene_bed, bedtools_dir)
+SV_breakpoint_gene_annotation(SV_data, gene_bed, bedtools_dir = NULL)
 }
 \arguments{
 \item{gene_bed}{data frame of gene regions}

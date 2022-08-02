@@ -389,7 +389,7 @@ Spectrum_SV_breakpoint <- function(All_sampleID, SVdf_list, threshold_count_brea
 #' @param bedtools_dir directory of bedtools to use
 #' @return data frame of intersection set between SV and gene regions
 #' @export
-SV_breakpoint_gene_annotation <- function(SV_data, gene_bed, bedtools_dir){
+SV_breakpoint_gene_annotation <- function(SV_data, gene_bed, bedtools_dir=NULL){
   if(is.null(bedtools_dir)){bedtools_dir <- Check_bedtools(x = "bedtools")}else{cat(paste0("Provided path for bedtools ... \n", bedtools_dir,"\n"))}
   if(is.null(bedtools_dir) | bedtools_dir == ""){cat(paste0("ERROR: Please provide the bedtools path.\n"))}else{
     directory <- "./"
@@ -436,7 +436,7 @@ SV_breakpoint_gene_annotation <- function(SV_data, gene_bed, bedtools_dir){
 #' @param bedtools_dir bedtools for use
 #' @return data frame of SV set
 #' @export
-SV_bedpe_annotation <- function(SV_data, gene_bed, bedtools_dir){
+SV_bedpe_annotation <- function(SV_data, gene_bed, bedtools_dir=NULL){
   #bedpe <- eval(parse(text = input_df_name))
   bedpe_bkpt_geneAnnotated <- SV_breakpoint_gene_annotation(SV_data, gene_bed,  bedtools_dir)
   bedpe <- SV_data
@@ -477,7 +477,7 @@ SV_bedpe_annotation <- function(SV_data, gene_bed, bedtools_dir){
 #' @param bedtools_dir bedtools for use
 #' @return data frame of SV set
 #' @export
-SV_gene_annotation <- function(SV_data, gene_bed, bedtools_dir){
+SV_gene_annotation <- function(SV_data, gene_bed, bedtools_dir=NULL){
   bedpe_geneAnnotated <- SV_bedpe_annotation(SV_data, gene_bed, bedtools_dir)
   bedpe <- SV_data
   if(nrow(bedpe) !=0){
