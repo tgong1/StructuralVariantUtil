@@ -198,8 +198,6 @@ bed_gene <- bed[bed$type == "gene",]
 bed_gene$chr <- paste0("chr", bed_gene$chr)
 write.table(bed_gene, paste0("/scratch/gq19/tg2182/HYPER-DUP/R_script/","ensembl_release99_gene",".bed"), quote=FALSE, sep='\t', row.names=FALSE, col.names=TRUE)
 
-read.table()
-usethis::use_data(SV_bed, overwrite = TRUE)
 
 #data(CallerA_bed)
 #load(system.file("extdata", "gene_bed.Rdata", package = "ShinySoSV2"))

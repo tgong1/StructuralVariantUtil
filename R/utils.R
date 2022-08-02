@@ -334,3 +334,39 @@ Prepare_for_VennDiagram <- function(SV_integrated, sampleID, SVCaller_name){
   x <- do.call("list", lapply(SVCaller_name,function(s) eval(parse(text=s))))
   return(x)
 }
+
+#' Define frequency of gene fusions
+#'
+#' Define frequency of gene fusions
+#'
+#' @param bed_geneAnnotated data frame
+#' @return data frame of summarised gene fusions
+#' @export
+Summary_gene_fusions <- function(SV_geneAnnotated){
+  if(!("sampleID" %in% colnames(SV_geneAnnotated))){
+    sampleID <- "sample_1"
+    df_All_gene_fusions <- cbind(sampleID, SV_geneAnnotated)
+  }else{
+    df_All_gene_fusions <- SV_geneAnnotated
+  }
+
+  df_All_gene_fusions$gene_fusions <- paste0(df_All_gene_fusions$pos1_overlap_gene,";",df_All_gene_fusions$pos2_overlap_gene)
+  df_All_gene_fusions <- unique(df_All_gene_fusions) ###in the gene bed, there are same gene names but different gene id, so keep unique here
+  df_All_gene_fusions2 <- df_All_gene_fusions[!(is.na(df_All_gene_fusions$pos1_overlap_gene)) & !(is.na(df_All_gene_fusions$pos2_overlap_gene)),]
+  df_All_gene_fusions2 <- df_All_gene_fusions2[df_All_gene_fusions2$pos1_overlap_gene!= df_All_gene_fusions2$pos2_overlap_gene,]
+  length(unique(paste0(df_All_gene_fusions2$sampleID, df_All_gene_fusions2$ID)))
+
+  df_summary_gene_fusions <- data.frame(table(df_All_gene_fusions2$gene_fusions))
+
+  tmp <- stringr::str_split_fixed(as.character(df_summary_gene_fusions$Var1), ";", 2)
+  df_summary_gene_fusions <- cbind(data.frame(tmp), df_summary_gene_fusions)
+  colnames(df_summary_gene_fusions) <- c("pos1_overlap_gene","pos2_overlap_gene","gene_fusions", "breakpoint_count")
+  sample_count <- c()
+  for(i in c(1: nrow(df_summary_gene_fusions))){
+    tmp <- df_All_gene_fusions2[df_All_gene_fusions2$gene_fusions == df_summary_gene_fusions[i,]$gene_fusions,]
+    sample_count <- c(sample_count, length(unique(tmp$sampleID)))
+  }
+  df_summary_gene_fusions$sample_count <- sample_count
+  return(df_summary_gene_fusions)
+}
+

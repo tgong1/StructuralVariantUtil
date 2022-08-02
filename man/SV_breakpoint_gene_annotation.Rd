@@ -4,17 +4,17 @@
 \alias{SV_breakpoint_gene_annotation}
 \title{SV breakpoints gene annotation}
 \usage{
-SV_breakpoint_gene_annotation(input_df_name, gene_bed, bedtools_dir)
+SV_breakpoint_gene_annotation(SV_data, gene_bed, bedtools_dir)
 }
 \arguments{
-\item{input_df_name}{name of input data frame}
-
 \item{gene_bed}{data frame of gene regions}
 
-\item{bedtools_dir}{bedtools for use}
+\item{bedtools_dir}{directory of bedtools to use}
+
+\item{SV_date}{input SV data frame}
 }
 \value{
-data frame of SV set
+data frame of intersection set between SV and gene regions
 }
 \description{
 This function annotate SV breakpoints based on gene regions
