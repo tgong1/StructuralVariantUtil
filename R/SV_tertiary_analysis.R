@@ -501,5 +501,5 @@ SV_gene_annotation <- function(SV_data, gene_bed, bedtools_dir){
   bedpe$pos1_overlap_gene <- pos1_overlap_gene
   bedpe$pos2_overlap_gene <- pos2_overlap_gene
   df_summary_gene_fusions <- Summary_gene_fusions(bedpe_geneAnnotated)
-  return(bedpe, df_summary_gene_fusions)
+  return(list(bedpe, df_summary_gene_fusions))
 }
