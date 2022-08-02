@@ -331,33 +331,6 @@ Check_bedtools <- function(x = "bedtools"){
   return(Sys.which(x))
 }
 
-#' Prepare_for_VennDiagram
-#'
-#' This function read bed format
-#'
-#' @param SV_integrated integrated SV call set
-#' @param sampleID sample ID
-#' @param SVCaller_name name of callers
-#' @return data frame
-#' @export
-Prepare_for_VennDiagram <- function(SV_integrated, sampleID, SVCaller_name){
-  tmp_callerID <- unlist(stringr::str_split(SV_integrated$manta[grepl(SVCaller_name[1],SV_integrated$ID)],","))
-  ID_split <- data.frame(stringr::str_split_fixed(tmp_callerID,"_",4))$X3
-  tmp_callerID <- tmp_callerID[ID_split=="1"]
-  assign(SVCaller_name[1], unique(tmp_callerID))
-
-  tmp <- c(SV_integrated$gridss[grepl(SVCaller_name[1],SV_integrated$ID)], SV_integrated$manta[!is.na(SV_integrated[,which(colnames(SV_integrated) == "gridss")])])
-  tmp_callerID <- unique(tmp)
-  tmp_callerID <- tmp_callerID[ID_split=="1"]
-  assign(SVCaller_name[2], unique(tmp_callerID))
-
-  for(i in c(2: length(SVCaller_name))){
-    assign(SVCaller_name[i], SV_integrated$ID[grepl(SVCaller_name[i],SV_integrated$ID)|
-                                                !is.na(SV_integrated[,which(colnames(SV_integrated) == SVCaller_name[i])])])
-  }
-  x <- do.call("list", lapply(SVCaller_name,function(s) eval(parse(text=s))))
-  return(x)
-}
 
 #' Define frequency of gene fusions
 #'
