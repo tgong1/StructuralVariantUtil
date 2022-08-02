@@ -2,6 +2,7 @@
 
 export(Check_bedtools)
 export(Prepare_for_VennDiagram)
+export(SVCaller_bed_newID_generate)
 export(SVCaller_union_intersect_generate)
 export(SVTYPE_stat_generate)
 export(SV_CNV_integration)
