@@ -1,8 +1,4 @@
-vcf_list <- c("manta_SVEngine_TumorSV2.60x_NormalSV1.60x_0.5.T.PASS.recode.vcf",
-  "lumpy_SVEngine_TumorSV2.60x_NormalSV1.60x_0.5_TumorminSU4.vcf",
-  "delly_SVEngine_TumorSV2.60x_NormalSV1.60x_0.5.somatic.PASS.vcf"
-  )
-usethis::use_data(vcf_list,overwrite = TRUE)
+
 
 ### save all gam models to sysdata.rda, sysdaya.rda is too large, NOT USE!!!!
 directory <- "~/Desktop/work_at_home/HRPCa_SV_method_paper/TEST_R_script2/"
@@ -30,7 +26,7 @@ do.call(usethis::use_data, c(lapply(c(paste0("gamsen_", combine_SV_SVcaller)
                                      # paste0("gamF1_score_", combine_SV_SVcaller)
                                       ), as.name),internal = TRUE, overwrite = TRUE))
 
-### Test data for ShinySoSV prediction, NOT USE!!!! directly simulate in example
+### NOT USE!!!! directly simulate in example. Test data for ShinySoSV prediction
 #Data was generated randomly with normal distribution:
 #VAF with mean of 0.5 and SD of 0.1;
 #normal coverage with mean of 30 and SD of 10 and
@@ -44,7 +40,7 @@ newdata <- data.frame(sampleID = paste0("sample_",c(1:100)),
                                 BND_threshold = 100)
 usethis::use_data(ShinySoSV_newdata,overwrite = TRUE)
 
-### Test data for simple Sv type classification NOT USE!!!
+### NOT USE!!! Test data for simple Sv type classification
 vcf_file <- system.file("extdata",
                         "GRIDSS_SVEngine_TumorSV2.60x_NormalSV1.60x_0.5_somatic_PASS_annotated.vcf",
                         package = "ShinySoSV2")
@@ -55,7 +51,7 @@ bed_test <- data.frame(CHROM = bed$CHROM,
 usethis::use_data(bed_test,overwrite = TRUE)
 
 
-### Test data for SV integration, NOT USE, SV_integration now use VCF_list as input
+### NOT USE!!! Test data for SV integration, SV_integration now use VCF_list as input
 vcf_file <- system.file("extdata",
                         "lumpy_SVEngine_TumorSV2.60x_NormalSV1.60x_0.5_TumorminSU4.vcf",
                         package = "ShinySoSV2")
@@ -86,6 +82,12 @@ VariantAnnotation::writeVcf(vcf_tmp, "manta_sample2.vcf")
 vcf_tmp <- vcf[vcf@rowRanges@ranges@NAMES %in% ID[sample(1:length(ID),100)],]
 VariantAnnotation::writeVcf(vcf_tmp, "manta_sample3.vcf")
 
+vcf_file <- "./inst/extdata/GRIDSS_SVEngine_TumorSV2.60x_NormalSV1.60x_0.5_somatic_PASS_annotated.vcf"
+vcf <- VariantAnnotation::readVcf(vcf_file)
+ID <- vcf@rowRanges@ranges@NAMES
+set.seed(1)
+vcf_tmp <- vcf[vcf@rowRanges@ranges@NAMES %in% ID[sample(1:length(ID),40)],]
+VariantAnnotation::writeVcf(vcf_tmp, "gridss_sample1.vcf")
 
 
 ###Test data for Sv type composition, NOT USE, three manta VCFs used
