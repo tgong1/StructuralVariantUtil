@@ -238,7 +238,6 @@ SVCaller_union_intersect_generate <- function(sampleID, SVCaller_name,SVCaller_b
   SVCaller_name_all <- paste0(paste0(SVCaller_name,collapse = ""),"ALL")
   SVCaller_bed_all <- do.call("rbind", lapply(paste0(SVCaller_name,"_standard_bedpe"),function(s) eval(parse(text=s))))
   SVCaller_bed_all_newID <- SVCaller_bed_all
-  #SVCaller_bed_all_newID <- SVCaller_bed_newID_generate2(SVCaller_bed_all,SVCaller_name_all)
   SVCaller_bed_all_newID_tmp <- Standard_bedtool_prepare_bkpt(SVCaller_bed_all_newID,BND_diff)
   write.table(SVCaller_bed_all_newID_tmp, paste0(sub_directory,"/",sampleID, "_", SVCaller_name_all,"_tmp.bed"), quote=FALSE, sep='\t', row.names=FALSE, col.names=FALSE)
 
@@ -259,9 +258,8 @@ SVCaller_union_intersect_generate <- function(sampleID, SVCaller_name,SVCaller_b
   data <- c()
   for(i in 1: length(unique(intersect_filter$Caller1_ID))){
     tmp <- paste(intersect_filter[intersect_filter$Caller1_ID == unique(intersect_filter$Caller1_ID)[i],]$Caller2_ID)
-    #data <- rbind(data,
-    #              c(unique(intersect_filter$Caller1_ID)[i],
-    #                unlist(lapply(SVCaller_name,function(s)paste(tmp[grepl(s,tmp)],collapse = ",")))))
+    ID_split <- data.frame(stringr::str_split_fixed(tmp,"_",4))$X3
+    tmp <- tmp[ID_split=="1"]
     tmp2 <- unlist(lapply(SVCaller_name, function(s)paste(tmp[grepl(s,tmp)],collapse = ",")))
     tmp2[tmp2 == ""] <- NA
     data <- rbind(data,
@@ -282,9 +280,35 @@ SVCaller_union_intersect_generate <- function(sampleID, SVCaller_name,SVCaller_b
     union <- union[!(!is.na(union[,i]) & duplicated(union[,i])),]
   }
 
-  SVCaller_bed_union <- union
-  SVCaller_bed_combine_all <- SVCaller_bed_union
+  union_newID <- SVCaller_bed_newID_generate(union,SVCaller_name = "SVUtil")
+  SVCaller_bed_combine_all <- union_newID
   return (SVCaller_bed_combine_all)
+}
+
+#' Integrate SV call sets
+#'
+#' This function read bed format
+#'
+#' @param bedpe SV set
+#' @param SVCaller_name name of callers
+#' @return data frame
+#' @export
+SVCaller_bed_newID_generate <- function(bedpe, SVCaller_name="SVUtil"){
+  if(nrow(bedpe) == 0){return( data.frame(matrix(ncol=0,nrow=0)))}
+  SVCaller_bed <- bedpe[,c(1:9)]
+  colnames(SVCaller_bed) <- c("chrom1","pos1","chrom2","pos2","SVTYPE","strand1","strand2","SVCallerID","SVCallerID_mate")
+  SV_index_tmp <- c(1:length(SVCaller_bed$SVCallerID))
+  ID_tmp <- SVCaller_bed$SVCallerID
+  SV_mate_index_tmp <- ifelse(is.na(match(SVCaller_bed$SVCallerID_mate,ID_tmp)),SV_index_tmp,match(SVCaller_bed$SVCallerID_mate,ID_tmp))
+  SV_index <- ifelse(SV_index_tmp <= SV_mate_index_tmp,SV_index_tmp,SV_mate_index_tmp)
+  mate1_index <- ifelse(duplicated(SV_index),"2","1")
+  mate2_index <- ifelse(mate1_index=="1","2","1")
+  event_index <- SV_index
+  ID <- paste(SVCaller_name,"_",SV_index,"_",mate1_index,"_",event_index,sep="")
+  ID_mate <- paste(SVCaller_name,"_",SV_index,"_",mate2_index,"_",event_index,sep="")
+  SVCaller_bed_newID <- data.frame(cbind(bedpe[,c(1:7)],ID,ID_mate,bedpe[,c(10:ncol(bedpe))]),stringsAsFactors = FALSE)
+
+  return(SVCaller_bed_newID)
 }
 
 #' Check the directory of bedtools
