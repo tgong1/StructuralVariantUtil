@@ -98,6 +98,10 @@ simple_SVTYPE_classification <- function(df, caller_name){
                                          "strand1","strand2",
                                          "ID","ID_mate",
                                          colnames(bedpe)[!(colnames(bedpe) %in% c("chrom1","chrom2","pos1","pos2","strand1","strand2"))])
+
+  bedpe_SVTYPE_classified <- bedpe_SVTYPE_classified[abs(bedpe_SVTYPE_classified$pos1 - bedpe_SVTYPE_classified$pos2)<2 &
+                            bedpe_SVTYPE_classified$chrom1 == bedpe_SVTYPE_classified$chrom2,]$SVTYPE <- "INS"
+
   SVTYPE_stat <- SVTYPE_stat_generate(bedpe_SVTYPE_classified)
   #rownames(SVTYPE_stat) <- vcf_file
   return(list(bedpe_SVTYPE_classified, SVTYPE_stat))
