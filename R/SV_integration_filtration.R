@@ -102,9 +102,9 @@ simple_SVTYPE_classification <- function(df, caller_name){
   bedpe_SVTYPE_classified[abs(bedpe_SVTYPE_classified$pos1 - bedpe_SVTYPE_classified$pos2)<2 &
                             bedpe_SVTYPE_classified$chrom1 == bedpe_SVTYPE_classified$chrom2,]$SVTYPE <- "INS"
 
-  SVTYPE_stat <- SVTYPE_stat_generate(bedpe_SVTYPE_classified)
+
   #rownames(SVTYPE_stat) <- vcf_file
-  return(list(bedpe_SVTYPE_classified, SVTYPE_stat))
+  return(bedpe_SVTYPE_classified)
 }
 
 #' Integrate SV call sets and write output
@@ -132,8 +132,7 @@ SV_integration <- function(SVCaller_name, vcf_list, sampleID = "sample", bkpt_T_
     for(i in c(1:length(SVCaller_name))){
       vcf_file <- vcf_list[i]
       df <- vcf_to_dataframe(vcf_file)
-      results <- simple_SVTYPE_classification(df, caller_name = SVCaller_name[i])
-      tmp <- results[[1]]
+      tmp <- simple_SVTYPE_classification(df, caller_name = SVCaller_name[i])
       tmp <- tmp[tmp$chrom1 %in% paste0("chr", c(1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,"X","Y")),]
       SVCaller_bed_name[[i]] <- tmp
     }

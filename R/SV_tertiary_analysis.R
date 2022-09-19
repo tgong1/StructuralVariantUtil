@@ -28,8 +28,9 @@ Summary_SV_type <- function(All_sampleID, SVdf_list){
   for(i in c(1:length(All_sampleID))){
     sampleID <- All_sampleID[i]
     df <- SVdf_list[[i]]
-    SVTYPE_count <- simple_SVTYPE_classification(df, caller_name = "StructuralVariantUtil")[[2]]
-    #SVTYPE_count <- SVTYPE_stat_generate(df)
+    bedpe_SVTYPE_classified <- simple_SVTYPE_classification(df, caller_name = "StructuralVariantUtil")
+
+    SVTYPE_count <- SVTYPE_stat_generate(bedpe_SVTYPE_classified)
     all_colnames <- unique(c(colnames(summary_results), colnames(SVTYPE_count)))
 
     SVTYPE_count_tmp <- data.frame(matrix(0, nrow = nrow(SVTYPE_count), ncol = length(all_colnames)))
@@ -217,7 +218,7 @@ Summary_SV_breakpoint <- function(All_sampleID, SVdf_list){
     sampleID <- All_sampleID[i]
     #bedpe <- eval(parse(text = All_input_df_name[i]))
     df <- SVdf_list[[i]]
-    bedpe <- simple_SVTYPE_classification(df, caller_name = "StructuralVariantUtil")[[1]]
+    bedpe <- simple_SVTYPE_classification(df, caller_name = "StructuralVariantUtil")
     if(nrow(bedpe) != 0){
       df_breakpoints <- rbind(df_breakpoints,
                               data.frame(sampleID = sampleID,
