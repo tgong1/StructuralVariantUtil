@@ -27,8 +27,6 @@ Summary_SV_type <- function(All_sampleID, SVdf_list){
   summary_results <- c()
   for(i in c(1:length(All_sampleID))){
     sampleID <- All_sampleID[i]
-    #vcf_file <- vcf_list[i]
-    #df <- vcf_to_bed(vcf_file)
     df <- SVdf_list[[i]]
     SVTYPE_count <- simple_SVTYPE_classification(df, caller_name = "StructuralVariantUtil")[[2]]
     #SVTYPE_count <- SVTYPE_stat_generate(df)
@@ -42,20 +40,18 @@ Summary_SV_type <- function(All_sampleID, SVdf_list){
     SVTYPE_count_tmp[,index_SVTYPE] <- SVTYPE_count
 
    # SVTYPE_count_tmp[colnames(SVTYPE_count_tmp) %in% colnames(SVTYPE_count)] <- SVTYPE_count
-
+    cat(paste0(sampleID,"\n"))
     if(i > 1){
       summary_results_tmp <- data.frame(matrix(0, nrow = nrow(summary_results), ncol = length(all_colnames)))
       colnames(summary_results_tmp) <- all_colnames
-
       index <- match(colnames(summary_results), colnames(summary_results_tmp))
       index_SVTYPE <- index[!(is.na(index))]
       summary_results_tmp[,index_SVTYPE] <- summary_results
-
-
       #summary_results_tmp[colnames(summary_results_tmp) %in% colnames(summary_results)] <- summary_results
       summary_results <- summary_results_tmp
     }
     summary_results <- rbind(summary_results, SVTYPE_count_tmp)
+    cat(paste0(sampleID,"\n"))
   }
   summary_results <- data.frame(sampleID =  All_sampleID, summary_results)
   return(summary_results)
