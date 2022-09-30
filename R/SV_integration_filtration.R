@@ -58,7 +58,7 @@ vcf_to_dataframe <- function(vcf_file){
 #' @export
 simple_SVTYPE_classification <- function(SV_data, caller_name=NULL){
   if(is.null(caller_name)){caller_name =="caller1"}
-  if(!is.data.frame(df)){
+  if(is.data.frame(df)){
     df <- SV_data
     cat(paste0("Read SV data called from ", caller_name, " in R data.frame format"))
   }else{
