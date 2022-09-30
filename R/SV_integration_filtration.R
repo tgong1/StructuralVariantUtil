@@ -60,11 +60,11 @@ simple_SVTYPE_classification <- function(SV_data, caller_name=NULL){
   if(is.null(caller_name)){caller_name =="caller1"}
   if(is.data.frame(df)){
     df <- SV_data
-    cat(paste0("Read SV data called from ", caller_name, " in R data.frame format"))
+    cat(paste0("Read SV data called from ", caller_name, " in R data.frame format.\n"))
   }else{
     vcf_file <- SV_data
     df <- vcf_to_dataframe(vcf_file)
-    cat(paste0("Read SV data called from ", caller_name, " in VCF format"))
+    cat(paste0("Read SV data called from ", caller_name, " in VCF format.\n"))
   }
 
   bedpe <- bed_to_bedpe(df)
@@ -110,9 +110,6 @@ simple_SVTYPE_classification <- function(SV_data, caller_name=NULL){
 
   bedpe_SVTYPE_classified[abs(bedpe_SVTYPE_classified$pos1 - bedpe_SVTYPE_classified$pos2)<2 &
                             bedpe_SVTYPE_classified$chrom1 == bedpe_SVTYPE_classified$chrom2,]$SVTYPE <- "INS"
-
-
-  #rownames(SVTYPE_stat) <- vcf_file
   return(bedpe_SVTYPE_classified)
 }
 
