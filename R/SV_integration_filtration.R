@@ -52,12 +52,17 @@ vcf_to_dataframe <- function(vcf_file){
 #'
 #' This function read bed format
 #'
-#' @param df SV in data.frame
+#' @param SV_data SV VCF path or SV in data.frame
 #' @param caller_name name of caller to be used in ID
 #' @return data frame
 #' @export
-simple_SVTYPE_classification <- function(df, caller_name){
-  #bed <- vcf_to_bed(vcf_file)
+simple_SVTYPE_classification <- function(SV_data, caller_name){
+  if(!is.data.frame(df)){
+    df <- SV_data
+  }else{
+    vcf_file <- SV_data
+    df <- vcf_to_bed(vcf_file)
+  }
   bedpe <- bed_to_bedpe(df)
   if(length(bedpe$ID_caller)!=0){
     bedpe <- bedpe[is.na(match(bedpe$ID_caller, bedpe$INFO_MATEID_caller)) | ### either don't have mate (i.e. not BND)
