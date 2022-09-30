@@ -63,7 +63,7 @@ simple_SVTYPE_classification <- function(SV_data, caller_name=NULL){
     cat(paste0("Read SV data called from ", caller_name, " in R data.frame format"))
   }else{
     vcf_file <- SV_data
-    df <- vcf_to_bed(vcf_file)
+    df <- vcf_to_dataframe(vcf_file)
     cat(paste0("Read SV data called from ", caller_name, " in VCF format"))
   }
 
