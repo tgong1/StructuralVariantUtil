@@ -4,10 +4,10 @@
 \alias{simple_SVTYPE_classification}
 \title{Classify SV types based on VCF}
 \usage{
-simple_SVTYPE_classification(df, caller_name)
+simple_SVTYPE_classification(SV_data, caller_name)
 }
 \arguments{
-\item{df}{SV in data.frame}
+\item{SV_data}{SV VCF path or SV in data.frame}
 
 \item{caller_name}{name of caller to be used in ID}
 }
