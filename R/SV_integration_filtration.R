@@ -113,8 +113,12 @@ simple_SVTYPE_classification <- function(SV_data, caller_name=NULL){
                                          "ID","ID_mate",
                                          colnames(bedpe)[!(colnames(bedpe) %in% c("chrom1","chrom2","pos1","pos2","strand1","strand2"))])
 
-  bedpe_SVTYPE_classified[abs(bedpe_SVTYPE_classified$pos1 - bedpe_SVTYPE_classified$pos2)<2 &
-                            bedpe_SVTYPE_classified$chrom1 == bedpe_SVTYPE_classified$chrom2,]$SVTYPE <- "INS"
+  if(sum(abs(bedpe_SVTYPE_classified$pos1 - bedpe_SVTYPE_classified$pos2)<2 &
+         bedpe_SVTYPE_classified$chrom1 == bedpe_SVTYPE_classified$chrom2)!=0){
+    bedpe_SVTYPE_classified[abs(bedpe_SVTYPE_classified$pos1 - bedpe_SVTYPE_classified$pos2)<2 &
+                              bedpe_SVTYPE_classified$chrom1 == bedpe_SVTYPE_classified$chrom2,]$SVTYPE <- "INS"
+  }
+
   return(bedpe_SVTYPE_classified)
 }
 
@@ -130,7 +134,7 @@ simple_SVTYPE_classification <- function(SV_data, caller_name=NULL){
 #' @param bedtools_dir directory of bedtools
 #' @return data frame
 #' @export
-SV_integration <- function(SVCaller_name, vcf_list, sampleID = "sample", bkpt_T_callers = 200, SVTYPE_ignore = FALSE, bedtools_dir=NULL){
+SV_integration <- function(SVCaller_name, vcf_list, sampleID = "sample_1", bkpt_T_callers = 200, SVTYPE_ignore = FALSE, bedtools_dir=NULL){
   if(is.null(bedtools_dir)){bedtools_dir <- Check_bedtools(x = "bedtools")}else{cat(paste0("Provided path for bedtools ... \n", bedtools_dir,"\n"))}
   if(is.null(bedtools_dir) | bedtools_dir == ""){cat(paste0("ERROR: Please provide the bedtools path.\n"))}else{
     BND_diff <- 2000
