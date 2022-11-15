@@ -28,7 +28,7 @@ strands_standardisation <- function(bed){
     strand1[tmp$INFO_CT=="NtoN"] <- NA; strand2[tmp$INFO_CT=="NtoN"] <- NA
     tmp3 <- cbind(tmp, strand1, strand2)
   }else if(sum(!is.na(bed$INFO_INV5)) !=0){
-    tmp <- data.frame(bed$INFO_INV5, bed$INFO_INV3, ID_caller = bed$ID_caller)
+    tmp <- data.frame(INFO_INV5 = bed$INFO_INV5, INFO_INV3 = bed$INFO_INV3, ID_caller = bed$ID_caller)
     strand1[bed$INFO_INV5] <- "-";strand2[bed$INFO_INV5] <- "-"
     strand1[bed$INFO_INV3] <- "+";strand2[bed$INFO_INV3] <- "+"
     tmp3 <- cbind(tmp, strand1, strand2)
