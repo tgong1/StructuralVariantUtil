@@ -90,13 +90,13 @@ simple_SVTYPE_classification <- function(SV_data, caller_name="caller1"){
 
 
   standard_bedpe <- data.frame(chrom1 = as.character(bedpe$chrom1),
-                               pos1 = as.integer(bedpe$pos1),
-                               #start1 = as.integer(bedpe$start1),
-                               #end1 = as.integer(bedpe$end1),
+                               #pos1 = as.integer(bedpe$pos1),
+                               start1 = as.integer(bedpe$start1),
+                               end1 = as.integer(bedpe$end1),
                                chrom2 = as.character(bedpe$chrom2),
-                               pos2 = as.integer(bedpe$pos2),
-                               #start2 = as.integer(bedpe$start2),
-                               #end2 = as.integer(bedpe$end2),
+                               #pos2 = as.integer(bedpe$pos2),
+                               start2 = as.integer(bedpe$start2),
+                               end2 = as.integer(bedpe$end2),
                                SVTYPE = SVTYPE,
                                strand1 = bedpe$strand1,
                                strand2 = bedpe$strand2,
@@ -105,19 +105,39 @@ simple_SVTYPE_classification <- function(SV_data, caller_name="caller1"){
                                #ALT = bedpe$ALT,
                                stringsAsFactors = FALSE)
 
-  bedpe_SVTYPE_classified <- data.frame(standard_bedpe,
-                                        bedpe[,!(colnames(bedpe) %in% c("chrom1","chrom2","pos1","pos2","strand1","strand2"))])
-  colnames(bedpe_SVTYPE_classified) <- c("chrom1", "pos1","chrom2","pos2","SVTYPE",
-                                         "strand1","strand2",
-                                         "ID","ID_mate",
-                                         colnames(bedpe)[!(colnames(bedpe) %in% c("chrom1","chrom2","pos1","pos2","strand1","strand2"))])
+  # if(sum(abs(bedpe_SVTYPE_classified$pos1 - bedpe_SVTYPE_classified$pos2)<2 &
+  #        bedpe_SVTYPE_classified$chrom1 == bedpe_SVTYPE_classified$chrom2)!=0){
+  #   bedpe_SVTYPE_classified[abs(bedpe_SVTYPE_classified$pos1 - bedpe_SVTYPE_classified$pos2)<2 &
+  #                             bedpe_SVTYPE_classified$chrom1 == bedpe_SVTYPE_classified$chrom2,]$SVTYPE <- "INS"
+  # }
+  #
+  # bedpe_SVTYPE_classified <- data.frame(standard_bedpe,
+  #                                       bedpe[,!(colnames(bedpe) %in% c("chrom1","chrom2","pos1","pos2","strand1","strand2"))])
+  # colnames(bedpe_SVTYPE_classified) <- c("chrom1", "pos1","chrom2","pos2","SVTYPE",
+  #                                        "strand1","strand2",
+  #                                        "ID","ID_mate",
+  #                                        colnames(bedpe)[!(colnames(bedpe) %in% c("chrom1","chrom2","pos1","pos2","strand1","strand2"))])
 
-  if(sum(abs(bedpe_SVTYPE_classified$pos1 - bedpe_SVTYPE_classified$pos2)<2 &
-         bedpe_SVTYPE_classified$chrom1 == bedpe_SVTYPE_classified$chrom2)!=0){
-    bedpe_SVTYPE_classified[abs(bedpe_SVTYPE_classified$pos1 - bedpe_SVTYPE_classified$pos2)<2 &
-                              bedpe_SVTYPE_classified$chrom1 == bedpe_SVTYPE_classified$chrom2,]$SVTYPE <- "INS"
+  if(sum(abs(standard_bedpe$end1 - standard_bedpe$end2)<2 &
+         standard_bedpe$chrom1 == standard_bedpe$chrom2)!=0){
+    standard_bedpe[abs(standard_bedpe$end1 - standard_bedpe$end2)<2 &
+                     standard_bedpe$chrom1 == standard_bedpe$chrom2,]$SVTYPE <- "INS"
   }
 
+  bedpe_SVTYPE_classified <- data.frame(standard_bedpe,
+                                        bedpe[,!(colnames(bedpe) %in% c("chrom1","chrom2",
+                                                                        "start1","start2",
+                                                                        "end1","end2",
+                                                                        "strand1","strand2"))])
+  colnames(bedpe_SVTYPE_classified) <- c("chrom1", "start1", "end1",
+                                         "chrom2","start2", "end2",
+                                         "SVTYPE",
+                                         "strand1","strand2",
+                                         "ID","ID_mate",
+                                         colnames(bedpe)[!(colnames(bedpe) %in%  c("chrom1","chrom2",
+                                                                                   "start1","start2",
+                                                                                   "end1","end2",
+                                                                                   "strand1","strand2"))])
   return(bedpe_SVTYPE_classified)
 }
 

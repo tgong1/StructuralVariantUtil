@@ -96,21 +96,21 @@ bed_to_bedpe <- function(bed){
   strand2[grepl(']', bed$ALT) & substr(bed$ALT,1,1) == "]"] <- "+"
 
   bedpe <- data.frame(chrom1=bed$CHROM,
-                      #start1=bed$POS-1,
-                      #end1=bed$POS,
-                      pos1=bed$POS,
+                      start1=bed$POS-1,
+                      end1=bed$POS,
+                      #pos1=bed$POS,
                       chrom2=paste0(tolower(substring(chrom2,1,3)), substring(chrom2,4,nchar(chrom2))),
-                      #start2 = as.numeric(pos2)-1,
-                      #end2=pos2,
-                      pos2=pos2,
+                      start2 = as.numeric(pos2)-1,
+                      end2=pos2,
+                      #pos2=pos2,
                       strand1 = strand1,
                       strand2 = strand2,
                       ALT=ALT,
                       stringsAsFactors = FALSE)
 
   bedpe <- data.frame(bedpe, bed[,!(colnames(bed) %in% c("CHROM","POS","INFO_END","ALT","strand1","strand2"))])
-  colnames(bedpe) <- #c("chrom1", "start1","end1","chrom2","start2","end2","strand1","strand2","ALT",
-                     c("chrom1", "pos1","chrom2","pos2","strand1","strand2","ALT",
+  colnames(bedpe) <- c("chrom1", "start1","end1","chrom2","start2","end2","strand1","strand2","ALT",
+                    # c("chrom1", "pos1","chrom2","pos2","strand1","strand2","ALT",
                        colnames(bed)[!(colnames(bed) %in% c("CHROM","POS","INFO_END","ALT","strand1","strand2"))])
   return(bedpe)
 }
