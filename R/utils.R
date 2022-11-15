@@ -20,7 +20,7 @@ strands_standardisation <- function(bed){
     tmp3 <- cbind(tmp3, stringr::str_split_fixed(tmp3$X1,"",2))
     colnames(tmp3) <- c("strands","ID_caller","strand1","strand2")
   }else if(sum(!is.na(bed$INFO_CT)) != 0){
-    tmp <- data.frame(bed$INFO_CT, ID_caller = bed$ID_caller)
+    tmp <- data.frame(INFO_CT = bed$INFO_CT, ID_caller = bed$ID_caller)
     strand1[tmp$INFO_CT=="3to5"] <- "+"; strand2[tmp$INFO_CT=="3to5"] <- "-"
     strand1[tmp$INFO_CT=="5to3"] <- "-"; strand2[tmp$INFO_CT=="5to3"] <- "+"
     strand1[tmp$INFO_CT=="3to3"] <- "+"; strand2[tmp$INFO_CT=="3to3"] <- "+"
