@@ -68,8 +68,15 @@ bed_to_bedpe <- function(bed){
   tmp1 <- gsub(".*\\[",'', tmp)
   tmp2 <- gsub(".*\\]",'', tmp1)
   chrom1 = as.character(bed$CHROM)
+  if(sum(grepl("chr", chrom1))==0){
+    bed$CHROM <- paste0("chr", chrom1)
+  }
+
   chrom2 <- chrom1
   chrom2[grepl('\\[',ALT) | grepl('\\]',ALT)] <- tmp2
+  if(sum(grepl("chr", chrom2))==0){
+    chrom2 <- paste0("chr", chrom2)
+  }
 
   tmp <- gsub(".*\\:",'', ALT[grepl('\\[',ALT) | grepl('\\]',ALT)])
   tmp1 <- gsub("\\[.*",'', tmp)
