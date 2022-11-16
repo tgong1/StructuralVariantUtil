@@ -40,7 +40,7 @@ strands_standardisation <- function(bed){
   bed2$strand1 <- tmp3$strand1
   bed2$strand2 <- tmp3$strand2
 
-  if((sum(bed2$INFO_SVTYPE %in% c("DEL","DUP")) != 0) & sum(is.na(bed2$strand1))!=0){
+  if((sum(bed2$INFO_SVTYPE %in% c("DEL","DUP")) != 0) & (sum(is.na(bed2$strand1))!=0)){
     if(length(bed2[is.na(bed2$strand1) & bed2$INFO_SVTYPE == "DEL",]$strand1) != 0){
       bed2[is.na(bed2$strand1) & bed2$INFO_SVTYPE == "DEL",]$strand1 <- "+"
       bed2[is.na(bed2$strand2) & bed2$INFO_SVTYPE == "DEL",]$strand2 <- "-"
@@ -131,12 +131,12 @@ bed_to_bedpe <- function(bed){
 #' @export
 prepare_SV_for_circos <- function(bedpe){
   bed1 <- data.frame(chr = bedpe$chrom1,
-                     start = bedpe$pos1,
-                     end = bedpe$pos1+1,
+                     start = bedpe$start1,
+                     end = bedpe$end1,
                      SVTYPE = bedpe$SVTYPE)
   bed2 <- data.frame(chr = bedpe$chrom2,
-                     start = bedpe$pos2,
-                     end = bedpe$pos2+1,
+                     start = bedpe$start2,
+                     end = bedpe$end2,
                      SVTYPE = bedpe$SVTYPE)
   bed3 <- bed1[bed1$SVTYPE!="TRA",]
   bed4 <- bed2[bed2$SVTYPE!="TRA",]

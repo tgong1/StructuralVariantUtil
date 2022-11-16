@@ -78,9 +78,14 @@ simple_SVTYPE_classification <- function(SV_data, caller_name="caller1"){
   SVTYPE <- bedpe$INFO_SVTYPE
   SVTYPE[bedpe$INFO_SVTYPE == "INS"] <- "INS"
   SVTYPE[(bedpe$strand1 == "+") & (bedpe$strand2 == "-") &
-           (bedpe$chrom1 == bedpe$chrom2) & (bedpe$INFO_SVTYPE != "INS")] <- "DEL"
+           (bedpe$chrom1 == bedpe$chrom2) & (bedpe$INFO_SVTYPE != "INS") & (bedpe$end1 < bedpe$end2)] <- "DEL"
   SVTYPE[(bedpe$strand1 == "-") & (bedpe$strand2 == "+") &
-           (bedpe$chrom1 == bedpe$chrom2) & (bedpe$INFO_SVTYPE != "INS")] <- "DUP"
+           (bedpe$chrom1 == bedpe$chrom2) & (bedpe$INFO_SVTYPE != "INS") & (bedpe$end1 > bedpe$end2)] <- "DEL"
+
+  SVTYPE[(bedpe$strand1 == "-") & (bedpe$strand2 == "+") &
+           (bedpe$chrom1 == bedpe$chrom2) & (bedpe$INFO_SVTYPE != "INS")& (bedpe$end1 < bedpe$end2)] <- "DUP"
+  SVTYPE[(bedpe$strand1 == "+") & (bedpe$strand2 == "-") &
+           (bedpe$chrom1 == bedpe$chrom2) & (bedpe$INFO_SVTYPE != "INS")& (bedpe$end1 > bedpe$end2)] <- "DUP"
 
   SVTYPE[(bedpe$strand1 == bedpe$strand2) &
            (bedpe$chrom1 == bedpe$chrom2) &
