@@ -69,13 +69,13 @@ bed_to_bedpe <- function(bed){
   tmp2 <- gsub(".*\\]",'', tmp1)
   chrom1 = as.character(bed$CHROM)
   if(sum(grepl("chr", chrom1))!=nrow(bed)){
-    bed$CHROM[!grepl("chr", chrom1)] <- paste0("chr", chrom1)[!grepl("chr", chrom1)]
+    chrom1[!grepl("chr", chrom1)] <- paste0("chr", chrom1[!grepl("chr", chrom1)])
   }
 
   chrom2 <- chrom1
   chrom2[grepl('\\[',ALT) | grepl('\\]',ALT)] <- tmp2
   if(sum(grepl("chr", chrom2))!=nrow(bed)){
-    chrom2[!grepl("chr", chrom2)] <- paste0("chr", chrom2)[!grepl("chr", chrom2)]
+    chrom2[!grepl("chr", chrom2)] <- paste0("chr", chrom2[!grepl("chr", chrom2)])
   }
 
   tmp <- gsub(".*\\:",'', ALT[grepl('\\[',ALT) | grepl('\\]',ALT)])
@@ -102,7 +102,7 @@ bed_to_bedpe <- function(bed){
   strand1[grepl(']', bed$ALT) & substr(bed$ALT,1,1) == "]"] <- "-"
   strand2[grepl(']', bed$ALT) & substr(bed$ALT,1,1) == "]"] <- "+"
 
-  bedpe <- data.frame(chrom1=bed$CHROM,
+  bedpe <- data.frame(chrom1=chrom1,
                       start1=bed$POS-1,
                       end1=bed$POS,
                       #pos1=bed$POS,
