@@ -74,13 +74,14 @@ bed_to_bedpe <- function(bed){
 
   chrom2 <- chrom1
   chrom2[grepl('\\[',ALT) | grepl('\\]',ALT)] <- tmp2
-  chrom2 <- tolower(chrom2)
+
+  if(sum(grepl("CHR", chrom2))!=0){
+    chrom2[grepl("CHR", chrom2)] <- paste0("chr", substring(chrom2[grepl("CHR", chrom2)],4))
+  }
+
   if(sum(grepl("chr", chrom2))!=nrow(bed)){
     chrom2[!grepl("chr", chrom2)] <- paste0("chr", chrom2[!grepl("chr", chrom2)])
   }
-
-  if(sum(chrom2 =="chrx")!=0){chrom2[chrom2 =="chrx"] <- "chrX"}
-  if(sum(chrom2 =="chry")!=0){chrom2[chrom2 =="chry"] <- "chrY"}
 
   tmp <- gsub(".*\\:",'', ALT[grepl('\\[',ALT) | grepl('\\]',ALT)])
   tmp1 <- gsub("\\[.*",'', tmp)
