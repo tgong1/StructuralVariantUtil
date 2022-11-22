@@ -176,7 +176,7 @@ SV_integration <- function(vcf_files, SVCaller_names, sampleID = "sample_1", bkp
       }
     }
     union_ID <- caller1_bedpe[, (ncol(caller1_bedpe)-length(SVCaller_names)+1):ncol(caller1_bedpe)]
-    integrated_bedpe <- integrated_bedpe[!duplicated(union_ID),]
+    integrated_bedpe <- caller1_bedpe[!duplicated(union_ID),]
     return(integrated_bedpe)
   }
 }
