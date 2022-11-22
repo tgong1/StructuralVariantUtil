@@ -23,7 +23,7 @@ SVTYPE_stat_generate <- function(bedpe){
 #' @param SVdf_list list of SV data.frames
 #' @return data frame
 #' @export
-Summary_SV_type <- function(All_sampleID, SVdf_list){
+summary_SV_type <- function(All_sampleID, SVdf_list){
   summary_results <- c()
   for(i in c(1:length(All_sampleID))){
     sampleID <- All_sampleID[i]
@@ -41,7 +41,7 @@ Summary_SV_type <- function(All_sampleID, SVdf_list){
     SVTYPE_count_tmp[,index_SVTYPE] <- SVTYPE_count
 
    # SVTYPE_count_tmp[colnames(SVTYPE_count_tmp) %in% colnames(SVTYPE_count)] <- SVTYPE_count
-    cat(paste0(sampleID,"\n"))
+    cat(paste0("Counting for ",sampleID,"\n"))
     if(i > 1){
       summary_results_tmp <- data.frame(matrix(0, nrow = nrow(summary_results), ncol = length(all_colnames)))
       colnames(summary_results_tmp) <- all_colnames
@@ -52,7 +52,7 @@ Summary_SV_type <- function(All_sampleID, SVdf_list){
       summary_results <- summary_results_tmp
     }
     summary_results <- rbind(summary_results, SVTYPE_count_tmp)
-    cat(paste0(sampleID,"\n"))
+    #cat(paste0(sampleID,"\n"))
   }
   summary_results <- data.frame(sampleID =  All_sampleID, summary_results)
   return(summary_results)
@@ -69,8 +69,8 @@ Summary_SV_type <- function(All_sampleID, SVdf_list){
 #' @param threshold_relative_freq threshold of minimum relative frequency of one SV type
 #' @return data frame of hyper SV
 #' @export
-Spectrum_SV_type <- function(All_sampleID, SVdf_list, identify_hyperSV_tumour = FALSE, threshold_total = NULL, threshold_relative_freq = NULL){
-  input_SV_count <- Summary_SV_type(All_sampleID, SVdf_list)
+spectrum_SV_type <- function(All_sampleID, SVdf_list, identify_hyperSV_tumour = FALSE, threshold_total = NULL, threshold_relative_freq = NULL){
+  input_SV_count <- summary_SV_type(All_sampleID, SVdf_list)
   N_total <- rowSums(input_SV_count[,2:ncol(input_SV_count)])
   if(identify_hyperSV_tumour){
     if(is.null(threshold_total)){
@@ -104,7 +104,7 @@ Spectrum_SV_type <- function(All_sampleID, SVdf_list, identify_hyperSV_tumour = 
 #' @param input_SV_count sample ID
 #' @return figures
 #' @export
-Spectrum_SV_type_plot <- function(input_SV_count){
+spectrum_SV_type_plot <- function(input_SV_count){
   theme1 <-  ggplot2::theme(axis.text=ggplot2::element_text(size=12,face="bold"),
                             axis.title=ggplot2::element_text(size=14,face="bold"),
                             axis.text.x = ggplot2::element_text(angle = 45, hjust = 1, size = 12,face="bold"),
@@ -212,7 +212,7 @@ SV_CNV_integration <- function(sampleID, SV_data, CNV_data, overlap_f=NULL, bedt
 #' @param SVdf_list names of all bed in df
 #' @return data frame of SV set
 #' @export
-Summary_SV_breakpoint <- function(All_sampleID, SVdf_list){
+summary_SV_breakpoint <- function(All_sampleID, SVdf_list){
   df_breakpoints <- c()
   for(i in c(1 : length(All_sampleID))){
     sampleID <- All_sampleID[i]
@@ -223,7 +223,7 @@ Summary_SV_breakpoint <- function(All_sampleID, SVdf_list){
       df_breakpoints <- rbind(df_breakpoints,
                               data.frame(sampleID = sampleID,
                                         chrom = c(as.character(bedpe$chrom1), as.character(bedpe$chrom2)),
-                                         pos = c(bedpe$pos1, bedpe$pos2),
+                                         pos = c(bedpe$end1, bedpe$end2),
                                           ID = c(bedpe$ID, bedpe$ID_mate)))
     }
 
@@ -238,7 +238,7 @@ Summary_SV_breakpoint <- function(All_sampleID, SVdf_list){
 #' @param df_breakpoints data frame of SV breakpoints
 #' @return data frame of SV set
 #' @export
-Spectrum_SV_bin <- function(df_breakpoints){
+spectrum_SV_bin <- function(df_breakpoints){
   df_bin_all <- c()
   for(chrom in c("chr1","chr2","chr3","chr4","chr5","chr6","chr7","chr8","chr9","chr10","chr11","chr12",
                  "chr13","chr14","chr15","chr16","chr17","chr18","chr19","chr20","chr21","chr22","chrX")){
@@ -273,8 +273,8 @@ Spectrum_SV_bin <- function(df_breakpoints){
 #' @param  threshold_count_sample threshold of number of samples
 #' @return data frame of SV set
 #' @export
-Spectrum_SV_bin_define_hotspot <- function(df_breakpoints, threshold_count_breakpoint=NULL, threshold_count_sample=NULL){
-  df_bin_all <- Spectrum_SV_bin(df_breakpoints)
+spectrum_SV_bin_define_hotspot <- function(df_breakpoints, threshold_count_breakpoint=NULL, threshold_count_sample=NULL){
+  df_bin_all <- spectrum_SV_bin(df_breakpoints)
   df3 <- df_bin_all
   df3 <- df3[!duplicated(df3$chrom_bin_labels),]
 
@@ -368,10 +368,10 @@ plot_ideograms <- function(df_bin_all_hotspots){
 #' @param threshold_count_sample threshold of number of samples
 #' @return data frame of genomic bins with hotspots defined
 #' @export
-Spectrum_SV_breakpoint <- function(All_sampleID, SVdf_list, threshold_count_breakpoint = NULL,threshold_count_sample = NULL){
-  df_breakpoints <- Summary_SV_breakpoint(All_sampleID, SVdf_list) ### put all bed df together
+spectrum_SV_breakpoint <- function(All_sampleID, SVdf_list, threshold_count_breakpoint = NULL,threshold_count_sample = NULL){
+  df_breakpoints <- summary_SV_breakpoint(All_sampleID, SVdf_list) ### put all bed df together
   #df_bin_all <- Spectrum_SV_bin(df_breakpoints) ### generate genomic bins
-  df_bin_all_hotspots <- Spectrum_SV_bin_define_hotspot(df_breakpoints, threshold_count_breakpoint,threshold_count_sample) ##### define genomic bins and add HOTSPOT information
+  df_bin_all_hotspots <- spectrum_SV_bin_define_hotspot(df_breakpoints, threshold_count_breakpoint,threshold_count_sample) ##### define genomic bins and add HOTSPOT information
   #write.table(df_bin_all_hotspots,"./df_bin_all_hotspots.txt", quote=FALSE, sep='\t', row.names=FALSE, col.names=TRUE)
   plot_ideograms(df_bin_all_hotspots) ### SV hotspot visualisation
   return(df_bin_all_hotspots)

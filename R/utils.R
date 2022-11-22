@@ -131,7 +131,7 @@ bed_to_bedpe <- function(bed){
 #'
 #' This function read bed format
 #'
-#' @param bedpe data frame, for example output from simple_SVTYPE_classification
+#' @param bedpe SV data in bedpe format, for example output from simple_SVTYPE_classification
 #' @return data frame
 #' @export
 prepare_SV_for_circos <- function(bedpe){
@@ -155,75 +155,44 @@ prepare_SV_for_circos <- function(bedpe){
 #'
 #' This function read bed format
 #'
-#' @param standard_bedpe data frame
-#' @param BND_diff the maximun value of breakpoint difference
+#' @param SV_data data frame
+#' @param bkpt_T_caller the maximun value of breakpoint difference
+#' @param caller caller name or unique identifier of VCF
 #' @return data frame
 #' @export
-Standard_bedtool_prepare_bkpt <- function(standard_bedpe, BND_diff){
-  diff <- BND_diff/2
-  standard_bed_tmp <- data.frame(
-    chrom = c(standard_bedpe$chrom1, standard_bedpe$chrom2),
-    start = c(standard_bedpe$pos1-diff, standard_bedpe$pos2-diff),
-    end = c(standard_bedpe$pos1+diff, standard_bedpe$pos2+diff),
-    SVTYPE = c(standard_bedpe$SVTYPE, standard_bedpe$SVTYPE),
-    ID = c(as.character(standard_bedpe$ID), as.character(standard_bedpe$ID_mate)),
-    ID_mate = c(as.character(standard_bedpe$ID_mate), as.character(standard_bedpe$ID)), stringsAsFactors = FALSE)
-  if (sum(standard_bed_tmp$start<0)!=0){standard_bed_tmp[standard_bed_tmp$start<0,]$start <- 0}
-  return(standard_bed_tmp)
+standard_bedtool_prepare_bkpt <- function(SV_data, bkpt_T_callers,caller){
+  caller_bedpe <- simple_SVTYPE_classification(SV_data, caller)
+  bedpe <- data.frame(chrom1 = caller_bedpe$chrom1,
+                      start1 = caller_bedpe$start1-(bkpt_T_callers/2),
+                      end1 = caller_bedpe$end1+(bkpt_T_callers/2),
+                      chrom2 = caller_bedpe$chrom2,
+                      start2 = caller_bedpe$start2-(bkpt_T_callers/2),
+                      end2 = caller_bedpe$end2+(bkpt_T_callers/2),
+                      ID = paste0(caller_bedpe$ID,";",caller_bedpe$SVTYPE,";",caller_bedpe$FILTER))
+  if (sum(bedpe$start1<0)!=0){bedpe[bedpe$start1<0,]$start1 <- 0}
+  if (sum(bedpe$start2<0)!=0){bedpe[bedpe$start2<0,]$start2 <- 0}
+  return(bedpe)
 }
 
-#' Check SV types and breakpoint positions
+
+#' Filter SV types and breakpoint positions
 #'
 #' This function read bed format
 #'
-#' @param intersect_file file name
-#' @param SVTYPE_ignore whether ignore SV type for integration
+#' @param pairtopair file name
+#' @param PASS_filter filtering of FILTER field in VCF of two calls
+#' @param svtype_ignore whether ignore SV type for integration
 #' @return data frame
 #' @export
-TypePosfilter <- function(intersect_file, SVTYPE_ignore){
-  intersect <- read.table(intersect_file,header = FALSE, sep="\t",stringsAsFactors=FALSE, quote="")
-  colnames(intersect) <- c("Caller1_CHROM", "Caller1_POS","Caller1_END","Caller1_SVTYPE","Caller1_ID","Caller1_ID_mate","Caller2",
-                           "Caller2_CHROM", "Caller2_POS","Caller2_END","Caller2_SVTYPE","Caller2_ID","Caller2_ID_mate","overlap")
-  if(SVTYPE_ignore){
-    intersect_Typefilter <- intersect
-  }else{
-    intersect_Typefilter <- intersect[(intersect$Caller1_SVTYPE == intersect$Caller2_SVTYPE)|
-                                        grepl("BND",intersect$Caller1_SVTYPE) | grepl("BND",intersect$Caller2_SVTYPE),]
-
-  }
-  # if(nrow(intersect_Typefilter)!=0){
-  #   ### Check Caller_1 ID_mate also listed in Caller_1 ID
-  #   #tmp_index <- lapply(intersect_Typefilter$Caller1_ID_mate,function(x) which(x==intersect_Typefilter$Caller1_ID))
-  #
-  #   tmp_index <- parallel::mclapply(intersect_Typefilter$Caller1_ID_mate , function(x) which(x==intersect_Typefilter$Caller1_ID), mc.cores = 8)
-  #
-  #   ### Further check Caller_2 ID_mate also listed in Caller_2 ID, which matched with Caller_1 ID
-  #   BND_ID_match <- vector(length=nrow(intersect_Typefilter))
-  #   for (i in 1: nrow(intersect_Typefilter)){
-  #     BND_ID_match[i] <- intersect_Typefilter$Caller2_ID_mate[i] %in% intersect_Typefilter$Caller2_ID[tmp_index[[i]]]
-  #   }
-  #   intersect_TypePosBNDfilter <- intersect_Typefilter[BND_ID_match,]
-  # }else{
-  #   intersect_TypePosBNDfilter <- intersect_Typefilter
-  # }
-  # return(intersect_TypePosBNDfilter)
-
-  if(nrow(intersect_Typefilter)!=0){
-    ID_split <- data.frame(stringr::str_split_fixed(intersect_Typefilter$Caller1_ID,"_",4))$X3
-    pos1 <- intersect_Typefilter[ID_split == 1,]
-    pos2 <- intersect_Typefilter[ID_split == 2,]
-
-    tmp_index <- lapply(pos1$Caller1_ID_mate,function(x) which(x==pos2$Caller1_ID))
-    #tmp_index <- parallel::mclapply(pos1$Caller1_ID_mate, function(x) which(x==pos2$Caller1_ID), mc.cores = 8)
-    BND_ID_match <- vector(length=nrow(pos1))
-    for (i in 1: nrow(pos1)){
-      BND_ID_match[i] <- pos1$Caller2_ID_mate[i] %in% pos2$Caller2_ID[tmp_index[[i]]]
-    }
-    pos1_filter <- pos1[BND_ID_match,]
-  }else{
-    pos1_filter <- pos1_filter
-  }
-  return(pos1_filter)
+pairtopair_filter <- function(pairtopair,PASS_filter, svtype_ignore){
+  if(PASS_filter=="both" & (!svtype_ignore)){
+    pairtopair_filtered <- pairtopair[pairtopair$caller1_FILTER=="PASS" & pairtopair$caller2_FILTER=="PASS" &
+                                        pairtopair$caller1_SVTYPE == pairtopair$caller2_SVTYPE ,]
+  }else if(PASS_filter=="one"& (!svtype_ignore)){
+    pairtopair_filtered <- pairtopair[(pairtopair$caller1_FILTER=="PASS" | pairtopair$caller2_FILTER=="PASS") &
+                                        pairtopair$caller1_SVTYPE == pairtopair$caller2_SVTYPE,]
+  }else{pairtopair_filtered <- pairtopair[pairtopair$caller1_SVTYPE == pairtopair$caller2_SVTYPE,]}
+  return(pairtopair_filtered)
 }
 
 #' Integrate SV call sets
@@ -231,102 +200,61 @@ TypePosfilter <- function(intersect_file, SVTYPE_ignore){
 #' This function read bed format
 #'
 #' @param sampleID sample ID
-#' @param SVCaller_name name of callers
-#' @param SVCaller_bed_name names of call sets
-#' @param BND_diff maximun breakpoint difference
+#' @param df_SV name of callers
+#' @param vcf_files names of call sets
 #' @param bkpt_T_callers threshold of breakpoint difference
-#' @param SVTYPE_ignore whether ignore SV type for integration
+#' @param SVCaller_names whether ignore SV type for integration
 #' @param bedtools_dir directory of bedtools
-#' @param sub_directory directory to write temporary files in
+#' @param DIR directory to write temporary files in
 #' @return data frame
 #' @export
-SVCaller_union_intersect_generate <- function(sampleID, SVCaller_name,SVCaller_bed_name,BND_diff,bkpt_T_callers,SVTYPE_ignore,bedtools_dir, sub_directory){
-  ### Each bed, convert to bed_tmp and written to bed_tmp file
-  for (i in 1:length(SVCaller_name)){
-    assign(paste0(SVCaller_name[i],"_standard_bedpe"), SVCaller_bed_name[[i]])
-    #assign(paste0(SVCaller_name[i],"_bed_tmp"), Standard_bedtool_prepare_bkpt(SVCaller_bed_name[[i]],BND_diff))
+SVCaller_union_intersect_generate <- function(sampleID, df_SV, vcf_files, bkpt_T_callers, SVCaller_names, bedtools_dir, DIR){
+  bedpe <- standard_bedtool_prepare_bkpt(df_SV, bkpt_T_callers, caller = SVCaller_names[1])
+  write.table(bedpe, paste0(DIR, sampleID, "/",SVCaller_names[1],"_sv.bedpe"), quote=FALSE, sep='\t', row.names=FALSE, col.names=FALSE)
+  bedpe <- standard_bedtool_prepare_bkpt(vcf_files[2], bkpt_T_callers, caller = SVCaller_names[2])
+  write.table(bedpe, paste0(DIR, sampleID, "/",SVCaller_names[2],"_sv.bedpe"), quote=FALSE, sep='\t', row.names=FALSE, col.names=FALSE)
 
-    assign(paste0(SVCaller_name[i],"_bed_tmp"), Standard_bedtool_prepare_bkpt(eval(parse(text=paste0(SVCaller_name[i],"_standard_bedpe"))),BND_diff))
-    write.table(eval(parse(text=paste0(SVCaller_name[i],"_bed_tmp"))), paste0(sub_directory,"/", sampleID, "_", SVCaller_name[i],"_tmp.bed"), quote=FALSE, sep='\t', row.names=FALSE, col.names=FALSE)
+  cat(paste(sampleID, SVCaller_names[1], "SV data in bedpe write.\n"))
+  cat(paste(sampleID, SVCaller_names[2], "SV data in bedpe write.\n"))
+
+  system(paste(bedtools_dir,"pairtopair -a", paste0(DIR, sampleID, "/",SVCaller_names[1],"_sv.bedpe"),
+               "-b", paste0(DIR, sampleID, "/",SVCaller_names[2],"_sv.bedpe"), ">",
+               paste0(DIR, sampleID, "/",SVCaller_names[1],"_vs_",SVCaller_names[2],"_sv.bedpe")))
+
+  if(file.info(paste0(DIR, sampleID, "/",SVCaller_names[1],"_vs_",SVCaller_names[2],"_sv.bedpe"))$size==0){
+    pairtopair <- c()
+  }else{
+    pairtopair <- read.table(paste0(DIR, sampleID, "/",SVCaller_names[1],"_vs_",SVCaller_names[2],"_sv.bedpe"), header =FALSE, sep="\t",stringsAsFactors=FALSE, quote="")
+    pairtopair <- pairtopair[!duplicated(pairtopair),] ###Some duplicated rows, not sure why, so here remove duplicates
+    pairtopair <- cbind(pairtopair[,c(1:6)],
+                        stringr::str_split_fixed(pairtopair[,7],";",3)[,1],
+                        stringr::str_split_fixed(pairtopair[,7],";",3)[,2],
+                        stringr::str_split_fixed(pairtopair[,7],";",3)[,3],
+                        pairtopair[,c(8:13)],
+                        stringr::str_split_fixed(pairtopair[,14],";",3)[,1],
+                        stringr::str_split_fixed(pairtopair[,14],";",3)[,2],
+                        stringr::str_split_fixed(pairtopair[,14],";",3)[,3])
+
+    colnames(pairtopair) <- c("caller1_chrom1","caller1_start1","caller1_end1",
+                              "caller1_chrom2","caller1_start2","caller1_end2",
+                              "caller1_ID","caller1_SVTYPE","caller1_FILTER",
+                              "caller2_chrom1","caller2_start1","caller2_end1",
+                              "caller2_chrom2","caller2_start2","caller2_end2",
+                              "caller2_ID","caller2_SVTYPE","caller2_FILTER")
+
+    main_chroms <- c("chr1", "chr2", "chr3", "chr4", "chr5", "chr6", "chr7",
+                     "chr8", "chr9", "chr10", "chr11", "chr12", "chr13", "chr14",
+                     "chr15", "chr16", "chr17", "chr18", "chr19", "chr20", "chr21", "chr22", "chrX", "chrY")
+    pairtopair <- pairtopair[(pairtopair$caller1_chrom1 %in% main_chroms) &
+                               (pairtopair$caller1_chrom2 %in% main_chroms) &
+                               (pairtopair$caller2_chrom1 %in% main_chroms) &
+                               (pairtopair$caller2_chrom2 %in% main_chroms),]
   }
 
-  ### Union set
-  # generate bed and bed with new name, bed with new name bed_tmp and written to bed_tmp file
-  SVCaller_name_all <- paste0(paste0(SVCaller_name,collapse = ""),"ALL")
-  SVCaller_bed_all <- do.call("rbind", lapply(paste0(SVCaller_name,"_standard_bedpe"),function(s) eval(parse(text=s))))
-  SVCaller_bed_all_newID <- SVCaller_bed_all
-  SVCaller_bed_all_newID_tmp <- Standard_bedtool_prepare_bkpt(SVCaller_bed_all_newID,BND_diff)
-  write.table(SVCaller_bed_all_newID_tmp, paste0(sub_directory,"/",sampleID, "_", SVCaller_name_all,"_tmp.bed"), quote=FALSE, sep='\t', row.names=FALSE, col.names=FALSE)
-
-  ### Intersect set
-  # bedtools intersect union set bed_tmp with all SV caller bed_tmp
-  intersect_file <- paste0(sub_directory,"/",sampleID, "_", "all_",paste0(SVCaller_name,collapse = "_"),"_intersect.bed")
-  overlap_f <- (BND_diff - bkpt_T_callers)/BND_diff
-  system(paste(bedtools_dir,"intersect -a", paste0(sub_directory,"/",sampleID, "_", SVCaller_name_all,"_tmp.bed"),
-               "-b", paste(paste0(sub_directory,"/",sampleID, "_", SVCaller_name,"_tmp.bed"), collapse = " "),
-               "-names", paste(SVCaller_name,collapse = " "), "-f",overlap_f, "-wo >", intersect_file))
-
-  intersect_filter <- TypePosfilter(intersect_file, SVTYPE_ignore)
-  ### remove ID in tmp bed, which is mate ID, keeping only the ID in original bed
-  #intersect_filter <- intersect_filter[intersect_filter$Caller1_ID %in% SVCaller_bed_all_newID$ID,]
-
-  ############################################
-  ### work for more than two sv caller overlapping ###
-  data <- c()
-  for(i in 1: length(unique(intersect_filter$Caller1_ID))){
-    tmp <- paste(intersect_filter[intersect_filter$Caller1_ID == unique(intersect_filter$Caller1_ID)[i],]$Caller2_ID)
-    ID_split <- data.frame(stringr::str_split_fixed(tmp,"_",4))$X3
-    tmp <- tmp[ID_split=="1"]
-    tmp2 <- unlist(lapply(SVCaller_name, function(s)paste(tmp[grepl(s,tmp)],collapse = ",")))
-    tmp2[tmp2 == ""] <- NA
-    data <- rbind(data,
-                  c(unique(intersect_filter$Caller1_ID)[i], tmp2))
-  }
-
-  #### New simpler method WORK!!!!
-  data <- data.frame(data)
-  colnames(data) <- c("All_callers", SVCaller_name)
-  tmp <- c()
-  for(i in 1:length(SVCaller_name)){
-    tmp <- rbind(tmp, eval(parse(text=paste0(SVCaller_name[i],"_standard_bedpe")))[as.character(eval(parse(text=paste0(SVCaller_name[i],"_standard_bedpe$ID"))))
-                                                                                   %in% data$All_callers,])
-  }
-  union_tmp <- cbind(tmp, data[,-1])
-  union <- union_tmp[!duplicated(data[,-1]),]
-  for(i in (ncol(tmp)+1) :ncol(union)){
-    union <- union[!(!is.na(union[,i]) & duplicated(union[,i])),]
-  }
-
-  union_newID <- SVCaller_bed_newID_generate(union,SVCaller_name = "SVUtil")
-  SVCaller_bed_combine_all <- union_newID
-  return (SVCaller_bed_combine_all)
+  return(pairtopair)
 }
 
-#' Integrate SV call sets
-#'
-#' This function read bed format
-#'
-#' @param bedpe SV set
-#' @param SVCaller_name name of callers
-#' @return data frame
-#' @export
-SVCaller_bed_newID_generate <- function(bedpe, SVCaller_name="SVUtil"){
-  if(nrow(bedpe) == 0){return( data.frame(matrix(ncol=0,nrow=0)))}
-  SVCaller_bed <- bedpe[,c(1:9)]
-  colnames(SVCaller_bed) <- c("chrom1","pos1","chrom2","pos2","SVTYPE","strand1","strand2","SVCallerID","SVCallerID_mate")
-  SV_index_tmp <- c(1:length(SVCaller_bed$SVCallerID))
-  ID_tmp <- SVCaller_bed$SVCallerID
-  SV_mate_index_tmp <- ifelse(is.na(match(SVCaller_bed$SVCallerID_mate,ID_tmp)),SV_index_tmp,match(SVCaller_bed$SVCallerID_mate,ID_tmp))
-  SV_index <- ifelse(SV_index_tmp <= SV_mate_index_tmp,SV_index_tmp,SV_mate_index_tmp)
-  mate1_index <- ifelse(duplicated(SV_index),"2","1")
-  mate2_index <- ifelse(mate1_index=="1","2","1")
-  event_index <- SV_index
-  ID <- paste(SVCaller_name,"_",SV_index,"_",mate1_index,"_",event_index,sep="")
-  ID_mate <- paste(SVCaller_name,"_",SV_index,"_",mate2_index,"_",event_index,sep="")
-  SVCaller_bed_newID <- data.frame(cbind(bedpe[,c(1:7)],ID,ID_mate,bedpe[,c(10:ncol(bedpe))]),stringsAsFactors = FALSE)
 
-  return(SVCaller_bed_newID)
-}
 
 #' Check the directory of bedtools
 #'

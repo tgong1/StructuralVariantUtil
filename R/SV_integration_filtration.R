@@ -150,40 +150,77 @@ simple_SVTYPE_classification <- function(SV_data, caller_name="caller1"){
 #'
 #' This function read bed format
 #'
-#' @param SVCaller_name name of callers
-#' @param vcf_list list of VCF files from different callers
-#' @param sampleID sample ID
-#' @param bkpt_T_callers threshold of breakpoint difference
-#' @param SVTYPE_ignore whether ignore SV type for integration
+
+#' @param vcf_files list of VCF files from different callers
+#' @param SVCaller_names names of callers
+#' @param sampleID unique identifier of sample, default as "sample_1".
+#' @param bkpt_T_callers threshold of breakpoint difference. Default as 100 bp
+#' @param PASS_filter filtering based on FILTER field of two calls in VCF: "both" to require both calls with "PASS", one to require one of the two calls with "PASS", "none" to ignore this filtering. Default is "both".
+#' @param svtype_ignore whether ignore SV type for integration. Default as FALSE.
 #' @param bedtools_dir directory of bedtools
 #' @return data frame
 #' @export
-SV_integration <- function(SVCaller_name, vcf_list, sampleID = "sample_1", bkpt_T_callers = 200, SVTYPE_ignore = FALSE, bedtools_dir=NULL){
-  if(is.null(bedtools_dir)){bedtools_dir <- Check_bedtools(x = "bedtools")}else{cat(paste0("Provided path for bedtools ... \n", bedtools_dir,"\n"))}
-  if(is.null(bedtools_dir) | bedtools_dir == ""){cat(paste0("ERROR: Please provide the bedtools path.\n"))}else{
-    BND_diff <- 2000
-    directory <- "./"
-    sub_directory <- paste0(directory,"/", sampleID, paste0(SVCaller_name,collapse = ""))
-    dir.create(sub_directory)
-    SVTYPE_ignore_text <- ifelse(SVTYPE_ignore, "SVTYPE_ignore", "SVTYPE_same")
-
-    SVCaller_bed_name <- list()
-    for(i in c(1:length(SVCaller_name))){
-      vcf_file <- vcf_list[i]
-      df <- vcf_to_dataframe(vcf_file)
-      tmp <- simple_SVTYPE_classification(df, caller_name = SVCaller_name[i])
-      tmp <- tmp[tmp$chrom1 %in% paste0("chr", c(1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,"X","Y")),]
-      SVCaller_bed_name[[i]] <- tmp
+SV_integration <- function(vcf_files, SVCaller_names, sampleID = "sample_1", bkpt_T_callers =100, PASS_filter="both", svtype_ignore =FALSE, bedtools_dir=NULL){
+if(is.null(bedtools_dir)){bedtools_dir <- Check_bedtools(x = "bedtools")}else{cat(paste0("Provided path for bedtools ... \n", bedtools_dir,"\n"))}
+if(is.null(bedtools_dir) | bedtools_dir == ""){cat(paste0("ERROR: Please provide the bedtools path.\n"))}else{
+  df_SV <- do.call("rbind", lapply(vcf_files, vcf_to_dataframe))
+  for(i in c(1:length(vcf_files))){
+    vcf_files_tmp <- c("all",vcf_files[i])
+    SVCaller_names_tmp <- c("all", SVCaller_names[i])
+    caller1_bedpe_tmp <- SV_integration_pairwise(sampleID, df_SV, vcf_files_tmp, bkpt_T_callers, SVCaller_names_tmp, PASS_filter, svtype_ignore,bedtools_dir)
+    if(i == 1){
+      caller1_bedpe <- caller1_bedpe_tmp
+    }else{
+      caller1_bedpe <- cbind(caller1_bedpe, caller1_bedpe_tmp[,24])
+      colnames(caller1_bedpe)[ncol(caller1_bedpe)] <- paste0(SVCaller_names[i],"_ID")
     }
-    SVCaller_bed_union <- SVCaller_union_intersect_generate(sampleID, SVCaller_name, SVCaller_bed_name, BND_diff, bkpt_T_callers, SVTYPE_ignore, bedtools_dir, sub_directory)
-    index <- which(colnames(SVCaller_bed_union) %in% SVCaller_name)
-    SVCaller_bed_union <- SVCaller_bed_union[,c(1:9, index)]
-    write.table(SVCaller_bed_union,
-                file = paste0(sub_directory,"/",
-                              sampleID, "_", paste0(SVCaller_name,collapse = "_"),
-                              "_combine_all_",bkpt_T_callers,"bp","_",SVTYPE_ignore_text,".bed"),
-                row.names = FALSE,col.names = TRUE, quote = FALSE, sep = "\t")
-    return(SVCaller_bed_union)
   }
-
+  return(caller1_bedpe)
 }
+}
+#' Integrate SV call sets and write output
+#'
+#' This function read bed format
+#'
+#' @param sampleID unique identifier of sample
+#' @param df_SV name of callers
+#' @param vcf_files list of VCF files from different callers
+#' @param bkpt_T_callers threshold of breakpoint difference
+#' @param SVCaller_names names of callers
+#' @param PASS_filter filtering based on FILTER field of two calls in VCF: "both" to require both calls with "PASS", one to require one of the two calls with "PASS", "none" to ignore this filtering. Default is "both".
+#' @param svtype_ignore whether ignore SV type for integration
+#' @param bedtools_dir directory of bedtools
+#' @return data frame
+#' @export
+SV_integration_pairwise <- function(sampleID, df_SV, vcf_files, bkpt_T_callers, SVCaller_names, PASS_filter, svtype_ignore,bedtools_dir){
+  DIR <- "./"
+  dir.create(paste0(DIR, sampleID))
+  pairtopair <- SVCaller_union_intersect_generate(sampleID, df_SV, vcf_files, bkpt_T_callers, SVCaller_names, bedtools_dir, DIR)
+
+  caller1_bedpe <- StructuralVariantUtil::simple_SVTYPE_classification(df_SV, caller= SVCaller_names[1])
+  main_chroms <- c("chr1", "chr2", "chr3", "chr4", "chr5", "chr6", "chr7",
+                   "chr8", "chr9", "chr10", "chr11", "chr12", "chr13", "chr14",
+                   "chr15", "chr16", "chr17", "chr18", "chr19", "chr20", "chr21", "chr22", "chrX", "chrY")
+  caller1_bedpe <- caller1_bedpe[(caller1_bedpe$chrom1 %in% main_chroms) &
+                                   (caller1_bedpe$chrom2 %in% main_chroms),]
+
+  if(length(pairtopair)==0){
+    caller1_bedpe$caller2_ID <- NA
+  }else{
+    pairtopair_filtered <- pairtopair_filter(pairtopair,PASS_filter, svtype_ignore)
+    caller1_bedpe_filtered <- caller1_bedpe[caller1_bedpe$ID %in% pairtopair_filtered$caller1_ID, ]
+
+    caller1_ID <- unique(pairtopair_filtered$caller1_ID)
+    caller2_ID <- c()
+    for(i in c(1:length(unique(pairtopair_filtered$caller1_ID)))){
+      caller2_ID <- c(caller2_ID,
+                      paste(pairtopair_filtered[pairtopair_filtered$caller1_ID == caller1_ID[i],]$caller2_ID, collapse = ","))
+    }
+    caller1_bedpe$caller2_ID <- NA
+    caller1_bedpe$caller2_ID[match(caller1_ID, caller1_bedpe$ID)] <- caller2_ID
+  }
+  colnames(caller1_bedpe)[which(colnames(caller1_bedpe)=="caller2_ID")] <- paste0(SVCaller_names[2],"_ID")
+  return(caller1_bedpe)
+}
+
+

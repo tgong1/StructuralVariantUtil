@@ -6,31 +6,28 @@
 \usage{
 SVCaller_union_intersect_generate(
   sampleID,
-  SVCaller_name,
-  SVCaller_bed_name,
-  BND_diff,
+  df_SV,
+  vcf_files,
   bkpt_T_callers,
-  SVTYPE_ignore,
+  SVCaller_names,
   bedtools_dir,
-  sub_directory
+  DIR
 )
 }
 \arguments{
 \item{sampleID}{sample ID}
 
-\item{SVCaller_name}{name of callers}
+\item{df_SV}{name of callers}
 
-\item{SVCaller_bed_name}{names of call sets}
-
-\item{BND_diff}{maximun breakpoint difference}
+\item{vcf_files}{names of call sets}
 
 \item{bkpt_T_callers}{threshold of breakpoint difference}
 
-\item{SVTYPE_ignore}{whether ignore SV type for integration}
+\item{SVCaller_names}{whether ignore SV type for integration}
 
 \item{bedtools_dir}{directory of bedtools}
 
-\item{sub_directory}{directory to write temporary files in}
+\item{DIR}{directory to write temporary files in}
 }
 \value{
 data frame

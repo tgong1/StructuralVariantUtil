@@ -7,7 +7,7 @@
 prepare_SV_for_circos(bedpe)
 }
 \arguments{
-\item{bedpe}{data frame, for example output from simple_SVTYPE_classification}
+\item{bedpe}{SV data in bedpe format, for example output from simple_SVTYPE_classification}
 }
 \value{
 data frame
