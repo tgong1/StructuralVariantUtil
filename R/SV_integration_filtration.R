@@ -161,22 +161,24 @@ simple_SVTYPE_classification <- function(SV_data, caller_name="caller1"){
 #' @return data frame
 #' @export
 SV_integration <- function(vcf_files, SVCaller_names, sampleID = "sample_1", bkpt_T_callers =100, PASS_filter="both", svtype_ignore =FALSE, bedtools_dir=NULL){
-if(is.null(bedtools_dir)){bedtools_dir <- Check_bedtools(x = "bedtools")}else{cat(paste0("Provided path for bedtools ... \n", bedtools_dir,"\n"))}
-if(is.null(bedtools_dir) | bedtools_dir == ""){cat(paste0("ERROR: Please provide the bedtools path.\n"))}else{
-  df_SV <- do.call("rbind", lapply(vcf_files, vcf_to_dataframe))
-  for(i in c(1:length(vcf_files))){
-    vcf_files_tmp <- c("all",vcf_files[i])
-    SVCaller_names_tmp <- c("all", SVCaller_names[i])
-    caller1_bedpe_tmp <- SV_integration_pairwise(sampleID, df_SV, vcf_files_tmp, bkpt_T_callers, SVCaller_names_tmp, PASS_filter, svtype_ignore,bedtools_dir)
-    if(i == 1){
-      caller1_bedpe <- caller1_bedpe_tmp
-    }else{
-      caller1_bedpe <- cbind(caller1_bedpe, caller1_bedpe_tmp[,24])
-      colnames(caller1_bedpe)[ncol(caller1_bedpe)] <- paste0(SVCaller_names[i],"_ID")
+  if(is.null(bedtools_dir)){bedtools_dir <- Check_bedtools(x = "bedtools")}else{cat(paste0("Provided path for bedtools ... \n", bedtools_dir,"\n"))}
+  if(is.null(bedtools_dir) | bedtools_dir == ""){cat(paste0("ERROR: Please provide the bedtools path.\n"))}else{
+    df_SV <- do.call("rbind", lapply(vcf_files, vcf_to_dataframe))
+    for(i in c(1:length(vcf_files))){
+      vcf_files_tmp <- c("all",vcf_files[i])
+      SVCaller_names_tmp <- c("all", SVCaller_names[i])
+      caller1_bedpe_tmp <- SV_integration_pairwise(sampleID, df_SV, vcf_files_tmp, bkpt_T_callers, SVCaller_names_tmp, PASS_filter, svtype_ignore,bedtools_dir)
+      if(i == 1){
+        caller1_bedpe <- caller1_bedpe_tmp
+      }else{
+        caller1_bedpe <- cbind(caller1_bedpe, caller1_bedpe_tmp[,24])
+        colnames(caller1_bedpe)[ncol(caller1_bedpe)] <- paste0(SVCaller_names[i],"_ID")
+      }
     }
+    union_ID <- caller1_bedpe[, (ncol(caller1_bedpe)-length(SVCaller_names)+1):ncol(caller1_bedpe)]
+    integrated_bedpe <- integrated_bedpe[!duplicated(union_ID),]
+    return(integrated_bedpe)
   }
-  return(caller1_bedpe)
-}
 }
 #' Integrate SV call sets and write output
 #'
