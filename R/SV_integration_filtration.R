@@ -77,6 +77,7 @@ simple_SVTYPE_classification <- function(SV_data, caller_name="caller1"){
 
   SVTYPE <- bedpe$INFO_SVTYPE
   SVTYPE[bedpe$INFO_SVTYPE == "INS"] <- "INS"
+  bedpe$end2 <- as.numeric(bedpe$end2)
   SVTYPE[(bedpe$strand1 == "+") & (bedpe$strand2 == "-") &
            (bedpe$chrom1 == bedpe$chrom2) & (bedpe$INFO_SVTYPE != "INS") & (bedpe$end1 < bedpe$end2)] <- "DEL"
   SVTYPE[(bedpe$strand1 == "-") & (bedpe$strand2 == "+") &
