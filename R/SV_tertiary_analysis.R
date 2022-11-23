@@ -180,8 +180,8 @@ SV_CNV_integration <- function(sampleID, SV_data, CNV_data, overlap_f=NULL, bedt
                                                       cn = CNV_bed$cn))
   write.table(eval(parse(text=paste0(sampleID, "_CNV_tmp.bed"))), paste0(sub_directory,sampleID,"_CNV_tmp.bed"), quote=FALSE, sep='\t', row.names=FALSE, col.names=FALSE)
   assign(paste0(sampleID,"_SV_tmp.bed"), data.frame(chrom = SV_bed[SV_bed$SVTYPE %in% c("DEL","DUP"),]$chrom1,
-                                                    start = SV_bed[SV_bed$SVTYPE %in% c("DEL","DUP"),]$pos1,
-                                                    end = SV_bed[SV_bed$SVTYPE %in% c("DEL","DUP"),]$pos2,
+                                                    start = SV_bed[SV_bed$SVTYPE %in% c("DEL","DUP"),]$end1,
+                                                    end = SV_bed[SV_bed$SVTYPE %in% c("DEL","DUP"),]$end2,
                                                     ID = SV_bed[SV_bed$SVTYPE %in% c("DEL","DUP"),]$ID,
                                                     SVTYPE = SV_bed[SV_bed$SVTYPE %in% c("DEL","DUP"),]$SVTYPE))
 
