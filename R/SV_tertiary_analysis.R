@@ -437,7 +437,7 @@ SV_breakpoint_gene_annotation <- function(SV_data, gene_bed, bedtools_dir=NULL){
 SV_bedpe_annotation <- function(SV_data, gene_bed, bedtools_dir=NULL){
   #bedpe <- eval(parse(text = input_df_name))
   bedpe_bkpt_geneAnnotated <- SV_breakpoint_gene_annotation(SV_data, gene_bed,  bedtools_dir)
-  bedpe <- SV_data
+  bedpe <- simple_SVTYPE_classification(SV_data, caller_name = "manta")
   #bedpe_bkpt_geneAnnotated <- bedpe_bkpt_geneAnnotated[bedpe_bkpt_geneAnnotated$type == "gene" & bedpe_bkpt_geneAnnotated$gene_biotype == "protein_coding",]
   if(nrow(bedpe) !=0){
     bedpe_geneAnnotated <- c()
@@ -477,7 +477,7 @@ SV_bedpe_annotation <- function(SV_data, gene_bed, bedtools_dir=NULL){
 #' @export
 SV_gene_annotation <- function(SV_data, gene_bed, bedtools_dir=NULL){
   bedpe_geneAnnotated <- SV_bedpe_annotation(SV_data, gene_bed, bedtools_dir)
-  bedpe <- SV_data
+  bedpe <- simple_SVTYPE_classification(SV_data, caller_name = "manta")
   if(nrow(bedpe) !=0){
     pos1_overlap_gene <- c()
     pos2_overlap_gene <- c()
