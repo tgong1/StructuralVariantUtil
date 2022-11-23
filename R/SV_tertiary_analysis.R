@@ -179,6 +179,7 @@ SV_CNV_integration <- function(sampleID, SV_data, CNV_data, overlap_f=NULL, bedt
                                                       end = CNV_bed$end,
                                                       cn = CNV_bed$cn))
   write.table(eval(parse(text=paste0(sampleID, "_CNV_tmp.bed"))), paste0(sub_directory,sampleID,"_CNV_tmp.bed"), quote=FALSE, sep='\t', row.names=FALSE, col.names=FALSE)
+  SV_bed <- SV_data
   assign(paste0(sampleID,"_SV_tmp.bed"), data.frame(chrom = SV_bed[SV_bed$SVTYPE %in% c("DEL","DUP"),]$chrom1,
                                                     start = SV_bed[SV_bed$SVTYPE %in% c("DEL","DUP"),]$end1,
                                                     end = SV_bed[SV_bed$SVTYPE %in% c("DEL","DUP"),]$end2,
@@ -395,7 +396,7 @@ SV_breakpoint_gene_annotation <- function(SV_data, gene_bed, bedtools_dir=NULL){
 
     gene_file <- paste0(sub_directory,"gene","_tmp.bed")
     write.table(gene_bed, gene_file, quote=FALSE, sep='\t', row.names=FALSE, col.names=TRUE)
-    bedpe <- SV_data
+    bedpe <- simple_SVTYPE_classification(SV_data, caller_name = "manta")
     if(nrow(bedpe) !=0){
       bedpe$chrom1 <- as.character(bedpe$chrom1)
       bedpe$chrom2 <- as.character(bedpe$chrom2)
@@ -403,8 +404,8 @@ SV_breakpoint_gene_annotation <- function(SV_data, gene_bed, bedtools_dir=NULL){
       bedpe$ID_mate <- as.character(bedpe$ID_mate)
 
       SV_bed <- data.frame(chrom = c(bedpe$chrom1, bedpe$chrom2),
-                           start = c(bedpe$pos1-1, bedpe$pos2-1),
-                           end = c(bedpe$pos1, bedpe$pos2),
+                           start = c(bedpe$start1, bedpe$start2),
+                           end = c(bedpe$end1, bedpe$end2),
                            SVTYPE = c(bedpe$SVTYPE, bedpe$SVTYPE),
                            ID = c(bedpe$ID, bedpe$ID_mate))
 
