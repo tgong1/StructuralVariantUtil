@@ -318,7 +318,7 @@ plot_ideograms <- function(df_bin_all_hotspots){
                  "chr13","chr14","chr15","chr16","chr17","chr18","chr19","chr20","chr21","chr22","chrX")
   max_count_breakpoints <- max(df2$count_breakpoints)
   max_count_samples <- max(df2$count_sample)
-  png(file="./SV_breakpoints_ideogram_byBins.png",width=2000,height=550)
+  png(file="./SV_breakpoints_ideogram_byBins.png",width=1800,height=550)
   kp <- karyoploteR::plotKaryotype("hg38", chromosomes = chrom_all, plot.type = 4, cex = 1.5, srt = 30)
   karyoploteR::kpAddBaseNumbers(kp, tick.dist = 50000000)
   karyoploteR::kpDataBackground(kp, data.panel = 1)
@@ -340,7 +340,7 @@ plot_ideograms <- function(df_bin_all_hotspots){
   chrom_all <- c("chr1","chr2","chr3","chr4","chr5","chr6","chr7","chr8","chr9","chr10","chr11","chr12",
                  "chr13","chr14","chr15","chr16","chr17","chr18","chr19","chr20","chr21","chr22","chrX")
 
-  png(file="./SV_samples_ideogram_byBins.png",width=2000,height=500)
+  png(file="./SV_samples_ideogram_byBins.png",width=1800,height=550)
   kp <- karyoploteR::plotKaryotype("hg38", chromosomes = chrom_all, plot.type = 4, cex = 1.5, srt = 30)
   #kpAddBaseNumbers(kp)
   karyoploteR::kpAddBaseNumbers(kp, tick.dist = 50000000)
