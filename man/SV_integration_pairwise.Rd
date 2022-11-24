@@ -2,7 +2,7 @@
 % Please edit documentation in R/SV_integration_filtration.R
 \name{SV_integration_pairwise}
 \alias{SV_integration_pairwise}
-\title{Integrate SV call sets and write output}
+\title{Integrate two SV call sets}
 \usage{
 SV_integration_pairwise(
   sampleID,
@@ -36,5 +36,5 @@ SV_integration_pairwise(
 data frame
 }
 \description{
-This function read bed format
+This function read two SV call sets and output the union set of them.
 }

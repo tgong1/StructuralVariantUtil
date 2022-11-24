@@ -2,9 +2,9 @@
 % Please edit documentation in R/SV_tertiary_analysis.R
 \name{summary_SV_type}
 \alias{summary_SV_type}
-\title{Summary SV count}
+\title{Count of SV types in cohort}
 \usage{
-summary_SV_type(All_sampleID, SVdf_list)
+summary_SV_type(All_sampleID, All_SV_data)
 }
 \arguments{
 \item{All_sampleID}{sample ID}
@@ -12,8 +12,8 @@ summary_SV_type(All_sampleID, SVdf_list)
 \item{SVdf_list}{list of SV data.frames}
 }
 \value{
-data frame
+data frame of count of SVs in cohort
 }
 \description{
-This function read bed format
+This function count SV types for more than one sample in a cohort
 }

@@ -2,20 +2,20 @@
 % Please edit documentation in R/utils.R
 \name{standard_bedtool_prepare_bkpt}
 \alias{standard_bedtool_prepare_bkpt}
-\title{Prepare breakpoint to use for bedtools}
+\title{Prepare breakpoint to use for bedtools pairtopair}
 \usage{
 standard_bedtool_prepare_bkpt(SV_data, bkpt_T_callers, caller)
 }
 \arguments{
-\item{SV_data}{data frame}
+\item{SV_data}{VCF file or SV data in bed format}
 
 \item{caller}{caller name or unique identifier of VCF}
 
-\item{bkpt_T_caller}{the maximun value of breakpoint difference}
+\item{bkpt_T_caller}{the threshold of breakpoint difference}
 }
 \value{
-data frame
+SV data in bedpe format
 }
 \description{
-This function read bed format
+This function read SV data and convert it to bedpe, which can be used in bedtools pairtopair
 }

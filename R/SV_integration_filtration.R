@@ -1,9 +1,9 @@
-#' Convert VCF format to bed format
+#' Convert VCF format to R dataframe
 #'
-#' This function read vcf file and convert it to bed format
+#' This function read vcf file and convert it to R dataframe
 #'
 #' @param vcf_file names of vcf file
-#' @return data frame
+#' @return SV data in data frame
 #' @export
 vcf_to_dataframe <- function(vcf_file){
   vcf <- VariantAnnotation::readVcf(vcf_file)
@@ -50,11 +50,11 @@ vcf_to_dataframe <- function(vcf_file){
 
 #' Classify SV types based on VCF
 #'
-#' This function read bed format
+#' This function read SV data,either as vcf file or bed format. SV data is converted into BND pairs in bedpe format and simple SV types (DEL, DUP, INS, INV an TRA) asiigned.
 #'
 #' @param SV_data SV VCF path or SV in data.frame
-#' @param caller_name name of caller to be used in ID
-#' @return data frame
+#' @param caller_name name of caller to be used in ID, default as caller_1
+#' @return SV data in bedpe format
 #' @export
 simple_SVTYPE_classification <- function(SV_data, caller_name="caller1"){
   if(is.data.frame(SV_data)){
@@ -147,19 +147,19 @@ simple_SVTYPE_classification <- function(SV_data, caller_name="caller1"){
   return(bedpe_SVTYPE_classified)
 }
 
-#' Integrate SV call sets and write output
+#' Integrate SV call sets
 #'
-#' This function read bed format
+#' This function read SV data and output the union set of them.
 #'
 
 #' @param vcf_files list of VCF files from different callers
-#' @param SVCaller_names names of callers
+#' @param SVCaller_names names of callers or unique identifier of SV set
 #' @param sampleID unique identifier of sample, default as "sample_1".
 #' @param bkpt_T_callers threshold of breakpoint difference. Default as 100 bp
 #' @param PASS_filter filtering based on FILTER field of two calls in VCF: "both" to require both calls with "PASS", one to require one of the two calls with "PASS", "none" to ignore this filtering. Default is "both".
 #' @param svtype_ignore whether ignore SV type for integration. Default as FALSE.
 #' @param bedtools_dir directory of bedtools
-#' @return data frame
+#' @return SV data in bedpe format
 #' @export
 SV_integration <- function(vcf_files, SVCaller_names, sampleID = "sample_1", bkpt_T_callers =100, PASS_filter="both", svtype_ignore =FALSE, bedtools_dir=NULL){
   if(is.null(bedtools_dir)){bedtools_dir <- Check_bedtools(x = "bedtools")}else{cat(paste0("Provided path for bedtools ... \n", bedtools_dir,"\n"))}
@@ -185,9 +185,9 @@ SV_integration <- function(vcf_files, SVCaller_names, sampleID = "sample_1", bkp
     return(integrated_bedpe)
   }
 }
-#' Integrate SV call sets and write output
+#' Integrate two SV call sets
 #'
-#' This function read bed format
+#' This function read two SV call sets and output the union set of them.
 #'
 #' @param sampleID unique identifier of sample
 #' @param df_SV name of callers

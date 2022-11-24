@@ -2,16 +2,16 @@
 % Please edit documentation in R/SV_tertiary_analysis.R
 \name{spectrum_SV_type_plot}
 \alias{spectrum_SV_type_plot}
-\title{Spectrum of SV figures}
+\title{Plot the figures of SV type spectrum}
 \usage{
 spectrum_SV_type_plot(input_SV_count)
 }
 \arguments{
-\item{input_SV_count}{sample ID}
+\item{input_SV_count}{data.frame of SV count}
 }
 \value{
-figures
+list of figures
 }
 \description{
-This function read bed format
+This function read data.frame of SV count (e.g. from function spectrum_SV_type)
 }

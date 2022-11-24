@@ -2,11 +2,11 @@
 % Please edit documentation in R/SV_tertiary_analysis.R
 \name{spectrum_SV_type}
 \alias{spectrum_SV_type}
-\title{Spectrum of SV count}
+\title{Count of SV types in cohort}
 \usage{
 spectrum_SV_type(
   All_sampleID,
-  SVdf_list,
+  All_SV_data,
   identify_hyperSV_tumour = FALSE,
   threshold_total = NULL,
   threshold_relative_freq = NULL
@@ -15,7 +15,7 @@ spectrum_SV_type(
 \arguments{
 \item{All_sampleID}{sample ID}
 
-\item{SVdf_list}{list of SV data.frame}
+\item{All_SV_data}{list of SV files or data frames}
 
 \item{threshold_total}{threshold of minimum total count of SVs per sample}
 
@@ -27,5 +27,5 @@ spectrum_SV_type(
 data frame of hyper SV
 }
 \description{
-This function read bed format
+This function count SV types for cohort and optionally identify the hyper-SV subgroup
 }

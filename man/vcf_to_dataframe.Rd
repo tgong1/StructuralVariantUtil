@@ -2,7 +2,7 @@
 % Please edit documentation in R/SV_integration_filtration.R
 \name{vcf_to_dataframe}
 \alias{vcf_to_dataframe}
-\title{Convert VCF format to bed format}
+\title{Convert VCF format to R dataframe}
 \usage{
 vcf_to_dataframe(vcf_file)
 }
@@ -10,8 +10,8 @@ vcf_to_dataframe(vcf_file)
 \item{vcf_file}{names of vcf file}
 }
 \value{
-data frame
+SV data in data frame
 }
 \description{
-This function read vcf file and convert it to bed format
+This function read vcf file and convert it to R dataframe
 }

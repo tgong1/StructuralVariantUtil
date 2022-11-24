@@ -9,11 +9,11 @@ simple_SVTYPE_classification(SV_data, caller_name = "caller1")
 \arguments{
 \item{SV_data}{SV VCF path or SV in data.frame}
 
-\item{caller_name}{name of caller to be used in ID}
+\item{caller_name}{name of caller to be used in ID, default as caller_1}
 }
 \value{
-data frame
+SV data in bedpe format
 }
 \description{
-This function read bed format
+This function read SV data,either as vcf file or bed format. SV data is converted into BND pairs in bedpe format and simple SV types (DEL, DUP, INS, INV an TRA) asiigned.
 }

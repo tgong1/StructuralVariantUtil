@@ -7,11 +7,11 @@
 bed_to_bedpe(bed)
 }
 \arguments{
-\item{bed}{data frame}
+\item{bed}{SV data in bed format}
 }
 \value{
-data frame
+SV data in bedpe format
 }
 \description{
-This function read bed format
+This function read SV data in bed format and convert it into bedpe format
 }

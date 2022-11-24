@@ -13,9 +13,9 @@ SV_CNV_integration(
 )
 }
 \arguments{
-\item{sampleID}{name of sample}
+\item{sampleID}{unique identifier of sample}
 
-\item{SV_data}{data frame of SV}
+\item{SV_data}{SV data in bedpe format}
 
 \item{CNV_data}{data frame of CNV segment}
 
@@ -24,7 +24,7 @@ SV_CNV_integration(
 \item{bedtools_dir}{bedtools for use}
 }
 \value{
-data frame of SV set
+SV data in bed format
 }
 \description{
 This function integrate deletion and duplication with copy number segments

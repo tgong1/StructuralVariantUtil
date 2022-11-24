@@ -10,8 +10,8 @@ prepare_SV_for_circos(bedpe)
 \item{bedpe}{SV data in bedpe format, for example output from simple_SVTYPE_classification}
 }
 \value{
-data frame
+list of input data for circlize package
 }
 \description{
-This function read bed format
+This function read SV data in bedpe format and convert to list of input data for circlize package
 }

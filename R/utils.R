@@ -1,9 +1,9 @@
-#' Convert strands into standard form
+#' Convert strands in VCF into BED
 #'
-#' This function read bed format
+#' This function read SV in bed format and standardise the strands
 #'
-#' @param bed dataframe
-#' @return data frame
+#' @param bed SV in bed format
+#' @return SV in bed format
 #' @export
 strands_standardisation <- function(bed){
   if(length(bed$ID_caller) == 0){bed$ID_caller = c(1:nrow(bed))}
@@ -55,10 +55,10 @@ return(bed2)
 
 #' Convert bed format to bedpe format
 #'
-#' This function read bed format
+#' This function read SV data in bed format and convert it into bedpe format
 #'
-#' @param bed data frame
-#' @return data frame
+#' @param bed SV data in bed format
+#' @return SV data in bedpe format
 #' @export
 bed_to_bedpe <- function(bed){
   bed <- strands_standardisation(bed)
@@ -129,10 +129,10 @@ bed_to_bedpe <- function(bed){
 
 #' Prepare data for SV circos plot
 #'
-#' This function read bed format
+#' This function read SV data in bedpe format and convert to list of input data for circlize package
 #'
 #' @param bedpe SV data in bedpe format, for example output from simple_SVTYPE_classification
-#' @return data frame
+#' @return list of input data for circlize package
 #' @export
 prepare_SV_for_circos <- function(bedpe){
   bed1 <- data.frame(chr = bedpe$chrom1,
@@ -151,14 +151,14 @@ prepare_SV_for_circos <- function(bedpe){
   return(list(bed3, bed4, bed5, bed6))
 }
 
-#' Prepare breakpoint to use for bedtools
+#' Prepare breakpoint to use for bedtools pairtopair
 #'
-#' This function read bed format
+#' This function read SV data and convert it to bedpe, which can be used in bedtools pairtopair
 #'
-#' @param SV_data data frame
-#' @param bkpt_T_caller the maximun value of breakpoint difference
+#' @param SV_data VCF file or SV data in bed format
+#' @param bkpt_T_caller the threshold of breakpoint difference
 #' @param caller caller name or unique identifier of VCF
-#' @return data frame
+#' @return SV data in bedpe format
 #' @export
 standard_bedtool_prepare_bkpt <- function(SV_data, bkpt_T_callers,caller){
   caller_bedpe <- simple_SVTYPE_classification(SV_data, caller)

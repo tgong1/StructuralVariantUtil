@@ -2,16 +2,16 @@
 % Please edit documentation in R/utils.R
 \name{strands_standardisation}
 \alias{strands_standardisation}
-\title{Convert strands into standard form}
+\title{Convert strands in VCF into BED}
 \usage{
 strands_standardisation(bed)
 }
 \arguments{
-\item{bed}{dataframe}
+\item{bed}{SV in bed format}
 }
 \value{
-data frame
+SV in bed format
 }
 \description{
-This function read bed format
+This function read SV in bed format and standardise the strands
 }

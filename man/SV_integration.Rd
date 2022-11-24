@@ -2,7 +2,7 @@
 % Please edit documentation in R/SV_integration_filtration.R
 \name{SV_integration}
 \alias{SV_integration}
-\title{Integrate SV call sets and write output}
+\title{Integrate SV call sets}
 \usage{
 SV_integration(
   vcf_files,
@@ -17,7 +17,7 @@ SV_integration(
 \arguments{
 \item{vcf_files}{list of VCF files from different callers}
 
-\item{SVCaller_names}{names of callers}
+\item{SVCaller_names}{names of callers or unique identifier of SV set}
 
 \item{sampleID}{unique identifier of sample, default as "sample_1".}
 
@@ -30,8 +30,8 @@ SV_integration(
 \item{bedtools_dir}{directory of bedtools}
 }
 \value{
-data frame
+SV data in bedpe format
 }
 \description{
-This function read bed format
+This function read SV data and output the union set of them.
 }

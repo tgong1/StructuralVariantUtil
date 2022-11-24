@@ -1,9 +1,9 @@
-#' SVtype count
+#' Count the SV types
 #'
-#' This function read bed format
+#' This function read SV data in bedpe format and count SV types
 #'
-#' @param bedpe bed format
-#' @return data frame
+#' @param bedpe SV data in bedpe format
+#' @return data frame of SV count in each type category
 #' @export
 SVTYPE_stat_generate <- function(bedpe){
   All_SVTYPE <- unique(bedpe$SVTYPE)
@@ -15,20 +15,20 @@ SVTYPE_stat_generate <- function(bedpe){
   return(STAT_bed)
 }
 
-#' Summary SV count
+#' Count of SV types in cohort
 #'
-#' This function read bed format
+#' This function count SV types for more than one sample in a cohort
 #'
 #' @param All_sampleID sample ID
 #' @param SVdf_list list of SV data.frames
-#' @return data frame
+#' @return data frame of count of SVs in cohort
 #' @export
-summary_SV_type <- function(All_sampleID, SVdf_list){
+summary_SV_type <- function(All_sampleID, All_SV_data){
   summary_results <- c()
   for(i in c(1:length(All_sampleID))){
     sampleID <- All_sampleID[i]
-    df <- SVdf_list[[i]]
-    bedpe_SVTYPE_classified <- simple_SVTYPE_classification(df, caller_name = "StructuralVariantUtil")
+    SV_data <- All_SV_data[[i]]
+    bedpe_SVTYPE_classified <- simple_SVTYPE_classification(SV_data, caller_name = "StructuralVariantUtil")
 
     SVTYPE_count <- SVTYPE_stat_generate(bedpe_SVTYPE_classified)
     all_colnames <- unique(c(colnames(summary_results), colnames(SVTYPE_count)))
@@ -58,19 +58,19 @@ summary_SV_type <- function(All_sampleID, SVdf_list){
   return(summary_results)
 }
 
-#' Spectrum of SV count
+#' Count of SV types in cohort
 #'
-#' This function read bed format
+#' This function count SV types for cohort and optionally identify the hyper-SV subgroup
 #'
 #' @param All_sampleID sample ID
-#' @param SVdf_list list of SV data.frame
+#' @param All_SV_data list of SV files or data frames
 #' @param identify_hyperSV_tumour: TRUE or FALSE. Whether to identify hyper-SV mutated tumour samples for large cancer cohort. Default as FALSE.
 #' @param threshold_total threshold of minimum total count of SVs per sample
 #' @param threshold_relative_freq threshold of minimum relative frequency of one SV type
 #' @return data frame of hyper SV
 #' @export
-spectrum_SV_type <- function(All_sampleID, SVdf_list, identify_hyperSV_tumour = FALSE, threshold_total = NULL, threshold_relative_freq = NULL){
-  input_SV_count <- summary_SV_type(All_sampleID, SVdf_list)
+spectrum_SV_type <- function(All_sampleID, All_SV_data, identify_hyperSV_tumour = FALSE, threshold_total = NULL, threshold_relative_freq = NULL){
+  input_SV_count <- summary_SV_type(All_sampleID, All_SV_data)
   N_total <- rowSums(input_SV_count[,2:ncol(input_SV_count)])
   if(identify_hyperSV_tumour){
     if(is.null(threshold_total)){
@@ -97,12 +97,12 @@ spectrum_SV_type <- function(All_sampleID, SVdf_list, identify_hyperSV_tumour = 
     return(input_SV_count)
   }
 }
-#' Spectrum of SV figures
+#' Plot the figures of SV type spectrum
 #'
-#' This function read bed format
+#' This function read data.frame of SV count (e.g. from function spectrum_SV_type)
 #'
-#' @param input_SV_count sample ID
-#' @return figures
+#' @param input_SV_count data.frame of SV count
+#' @return list of figures
 #' @export
 spectrum_SV_type_plot <- function(input_SV_count){
   theme1 <-  ggplot2::theme(axis.text=ggplot2::element_text(size=12,face="bold"),
@@ -125,10 +125,10 @@ spectrum_SV_type_plot <- function(input_SV_count){
                    sampleID = rep(input_SV_count$sampleID, (ncol(input_SV_count)-1)),
                    Count = as.vector(unlist(input_SV_count[,2:ncol(input_SV_count)])))
 
-figure1 <- ggplot2::ggplot(data=df, ggplot2::aes(x=sampleID, y=Count, fill=SVTYPE)) +
-    ggplot2::geom_bar(stat="identity")+
-    ggplot2::scale_fill_manual(values = RColorBrewer::brewer.pal(12, "Set3"), drop=F)+
-    theme1
+  figure1 <- ggplot2::ggplot(data=df, ggplot2::aes(x=sampleID, y=Count, fill=SVTYPE)) +
+             ggplot2::geom_bar(stat="identity")+
+             ggplot2::scale_fill_manual(values = RColorBrewer::brewer.pal(12, "Set3"), drop=F)+
+             theme1
   #pdf(file="./Spectrum_SV_across_sample.pdf", width=19, height=9)
   #print(p1)
   #dev.off()
@@ -156,16 +156,17 @@ figure1 <- ggplot2::ggplot(data=df, ggplot2::aes(x=sampleID, y=Count, fill=SVTYP
   #dev.off()
   return(list(figure1,figure2))
 }
+
 #' Integrate SV and CNV
 #'
 #' This function integrate deletion and duplication with copy number segments
 #'
-#' @param sampleID name of sample
-#' @param SV_data data frame of SV
+#' @param sampleID unique identifier of sample
+#' @param SV_data SV data in bedpe format
 #' @param CNV_data data frame of CNV segment
 #' @param overlap_f the fraction of minimum overlap required of CNV segment as a fraction of SV
 #' @param bedtools_dir bedtools for use
-#' @return data frame of SV set
+#' @return SV data in bed format
 #' @export
 SV_CNV_integration <- function(sampleID, SV_data, CNV_data, overlap_f=NULL, bedtools_dir=NULL){
   directory <- "./"
@@ -210,16 +211,15 @@ SV_CNV_integration <- function(sampleID, SV_data, CNV_data, overlap_f=NULL, bedt
 #' This function put all sample SV breakpoints together
 #'
 #' @param All_sampleID sample ID for all samples
-#' @param SVdf_list names of all bed in df
+#' @param All_SV_data vcf files or a list of dataframe of SV data
 #' @return data frame of SV set
 #' @export
-summary_SV_breakpoint <- function(All_sampleID, SVdf_list){
+summary_SV_breakpoint <- function(All_sampleID, All_SV_data){
   df_breakpoints <- c()
   for(i in c(1 : length(All_sampleID))){
     sampleID <- All_sampleID[i]
-    #bedpe <- eval(parse(text = All_input_df_name[i]))
-    df <- SVdf_list[[i]]
-    bedpe <- simple_SVTYPE_classification(df, caller_name = "StructuralVariantUtil")
+    SV_data <- All_SV_data[[i]]
+    bedpe <- simple_SVTYPE_classification(SV_data, caller_name = "StructuralVariantUtil")
     if(nrow(bedpe) != 0){
       df_breakpoints <- rbind(df_breakpoints,
                               data.frame(sampleID = sampleID,
