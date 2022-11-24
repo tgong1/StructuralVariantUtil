@@ -364,13 +364,13 @@ plot_ideograms <- function(df_bin_all_hotspots){
 #' Define hotspots
 #'
 #' @param All_sampleID sample ID for all samples
-#' @param SVdf_list list of SVs in df
+#' @param All_SV_data list of SVs in df
 #' @param threshold_count_breakpoint threshold of number of SD
 #' @param threshold_count_sample threshold of number of samples
 #' @return data frame of genomic bins with hotspots defined
 #' @export
-spectrum_SV_breakpoint <- function(All_sampleID, SVdf_list, threshold_count_breakpoint = NULL,threshold_count_sample = NULL){
-  df_breakpoints <- summary_SV_breakpoint(All_sampleID, SVdf_list) ### put all bed df together
+spectrum_SV_breakpoint <- function(All_sampleID, All_SV_data, threshold_count_breakpoint = NULL,threshold_count_sample = NULL){
+  df_breakpoints <- summary_SV_breakpoint(All_sampleID, All_SV_data) ### put all bed df together
   #df_bin_all <- Spectrum_SV_bin(df_breakpoints) ### generate genomic bins
   df_bin_all_hotspots <- spectrum_SV_bin_define_hotspot(df_breakpoints, threshold_count_breakpoint,threshold_count_sample) ##### define genomic bins and add HOTSPOT information
   #write.table(df_bin_all_hotspots,"./df_bin_all_hotspots.txt", quote=FALSE, sep='\t', row.names=FALSE, col.names=TRUE)

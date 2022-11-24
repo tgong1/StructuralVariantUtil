@@ -6,7 +6,7 @@
 \usage{
 spectrum_SV_breakpoint(
   All_sampleID,
-  SVdf_list,
+  All_SV_data,
   threshold_count_breakpoint = NULL,
   threshold_count_sample = NULL
 )
@@ -14,7 +14,7 @@ spectrum_SV_breakpoint(
 \arguments{
 \item{All_sampleID}{sample ID for all samples}
 
-\item{SVdf_list}{list of SVs in df}
+\item{All_SV_data}{list of SVs in df}
 
 \item{threshold_count_breakpoint}{threshold of number of SD}
 
