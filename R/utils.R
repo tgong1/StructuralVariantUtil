@@ -135,6 +135,12 @@ bed_to_bedpe <- function(bed){
 #' @return list of input data for circlize package
 #' @export
 prepare_SV_for_circos <- function(bedpe){
+  main_chroms <- c("chr1", "chr2", "chr3", "chr4", "chr5", "chr6", "chr7",
+                   "chr8", "chr9", "chr10", "chr11", "chr12", "chr13", "chr14",
+                   "chr15", "chr16", "chr17", "chr18", "chr19", "chr20", "chr21", "chr22", "chrX", "chrY")
+  bedpe <- bedpe[(bedpe$chrom1 %in% main_chroms) &
+                                   (bedpe$chrom2 %in% main_chroms),]
+
   bed1 <- data.frame(chr = bedpe$chrom1,
                      start = bedpe$start1,
                      end = bedpe$end1,
@@ -185,13 +191,18 @@ standard_bedtool_prepare_bkpt <- function(SV_data, bkpt_T_callers,caller){
 #' @return data frame
 #' @export
 pairtopair_filter <- function(pairtopair,PASS_filter, svtype_ignore){
-  if(PASS_filter=="both" & (!svtype_ignore)){
-    pairtopair_filtered <- pairtopair[pairtopair$caller1_FILTER=="PASS" & pairtopair$caller2_FILTER=="PASS" &
-                                        pairtopair$caller1_SVTYPE == pairtopair$caller2_SVTYPE ,]
-  }else if(PASS_filter=="one"& (!svtype_ignore)){
-    pairtopair_filtered <- pairtopair[(pairtopair$caller1_FILTER=="PASS" | pairtopair$caller2_FILTER=="PASS") &
-                                        pairtopair$caller1_SVTYPE == pairtopair$caller2_SVTYPE,]
-  }else{pairtopair_filtered <- pairtopair[pairtopair$caller1_SVTYPE == pairtopair$caller2_SVTYPE,]}
+  if(PASS_filter=="both"){
+    pairtopair_filtered <- pairtopair[pairtopair$caller1_FILTER=="PASS" & pairtopair$caller2_FILTER=="PASS",]
+  }else if(PASS_filter=="one"){
+    pairtopair_filtered <- pairtopair[(pairtopair$caller1_FILTER=="PASS" | pairtopair$caller2_FILTER=="PASS") ,]
+  }else{
+    pairtopair_filtered <- pairtopair
+  }
+
+  if((!svtype_ignore)){
+    pairtopair_filtered <- pairtopair_filtered[pairtopair_filtered$caller1_SVTYPE == pairtopair_filtered$caller2_SVTYPE,]
+  }
+
   return(pairtopair_filtered)
 }
 

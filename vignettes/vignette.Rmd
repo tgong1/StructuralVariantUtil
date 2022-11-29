@@ -17,5 +17,43 @@ knitr::opts_chunk$set(
 )
 ```
 
+## Introduction
+
+The *StructuralVariantUtil* package provide utility functions for structuralvariant (SV) study, including estimating calling performance, parsing VCF, integrating results from different callers and cohort-level spectrum analysis. In the following sections, we illustrate how to install and use *StructuralVariantUtil*.
+
+## Third Party Software
+
+*StructuralVariantUtil* requires *ShinySoSV* and *bedtools* in some functions.
+
+Download the latest release of *ShinySoSV* by cloning the repository:
+
+```{bash, engine.opts='-l'}
+git clone https://github.com/tgong1/Shiny-SoSV.git
+```
+
+Download and install [bedtools](https://bedtools.readthedocs.io/en/latest/content/installation.html).
+
 
 ## Installation
+Download the latest release of *StructuralVariantUtil* by running the following command in R. (Plan to upload to Bioconductor later)
+```{r, results = "hold", message = TRUE, eval = TRUE, errors = TRUE}
+devtools::install_github("tgong1/StructuralVariantUtil")
+# load StructuralVariantUtil library
+library("StructuralVariantUtil")
+```
+
+## Main functions
+
+*StructuralVariantUtil* estimates somatic SV calling performance including precision, sensitivity and F1 score, from whole genome sequencing data, based on prediction models developed in *ShinySoSV*. Input parameters required include any candidate caller(s) (*Manta*, *GRIDSS*, *Delly*, *SvABA*) and variables impacting somatic SV calling, including variant allele frequency (VAF), normal coverage, tumour coverage and tolerance of breakpoint precision.
+
+
+
+
+
+
+
+
+
+
+
+
