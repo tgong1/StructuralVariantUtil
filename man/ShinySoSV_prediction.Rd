@@ -4,7 +4,13 @@
 \alias{ShinySoSV_prediction}
 \title{ShinySoSV prediction}
 \usage{
-ShinySoSV_prediction(Candidate_callers, newdata, performance, callset)
+ShinySoSV_prediction(
+  Candidate_callers,
+  newdata,
+  performance,
+  callset,
+  ShinySoSV_DIR
+)
 }
 \arguments{
 \item{newdata}{data frame of variables with which to predict}
@@ -12,6 +18,8 @@ ShinySoSV_prediction(Candidate_callers, newdata, performance, callset)
 \item{performance}{should be any of "sensitivity", "precision" or "F1 score"}
 
 \item{callset}{individual caller, pairwise union or intersection}
+
+\item{ShinySoSV_DIR}{directory of installed ShinySoSV}
 
 \item{candidate_callers}{names of callers}
 }

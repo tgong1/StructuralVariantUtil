@@ -3,9 +3,9 @@ title: "StructuralVariantUtil"
 author: "Tingting Gong"
 date: "`r Sys.Date()`"
 output:
+  pdf_document: default
   html_document:
     df_print: paged
-  pdf_document: default
 vignette: |
   %\VignetteIndexEntry{StructuralVariantUtil} %\VignetteEncoding{UTF-8} %\VignetteEngine{knitr::rmarkdown}
 ---
@@ -19,7 +19,7 @@ knitr::opts_chunk$set(
 
 ## Introduction
 
-The *StructuralVariantUtil* package provide utility functions for structuralvariant (SV) study, including estimating calling performance, parsing VCF, integrating results from different callers and cohort-level spectrum analysis. In the following sections, we illustrate how to install and use *StructuralVariantUtil*.
+The *StructuralVariantUtil* package provide utility functions for structural variant (SV) study, including estimating calling performance, parsing VCF, integrating results from different callers and cohort-level spectrum analysis. In the following sections, we illustrate how to install and use *StructuralVariantUtil*.
 
 ## Third Party Software
 
@@ -28,15 +28,16 @@ The *StructuralVariantUtil* package provide utility functions for structuralvari
 Download the latest release of *ShinySoSV* by cloning the repository:
 
 ```{bash, engine.opts='-l'}
-git clone https://github.com/tgong1/Shiny-SoSV.git
+#git clone https://github.com/tgong1/Shiny-SoSV.git
 ```
 
-Download and install [bedtools](https://bedtools.readthedocs.io/en/latest/content/installation.html).
-
+Download and install [bedtools](https://bedtools.readthedocs.io/en/latest/content/installation.html) via its website.
 
 ## Installation
+
 Download the latest release of *StructuralVariantUtil* by running the following command in R. (Plan to upload to Bioconductor later)
-```{r, results = "hold", message = TRUE, eval = TRUE, errors = TRUE}
+
+```{r, results = "hold", message = FALSE, eval = FALSE}
 devtools::install_github("tgong1/StructuralVariantUtil")
 # load StructuralVariantUtil library
 library("StructuralVariantUtil")
@@ -46,14 +47,245 @@ library("StructuralVariantUtil")
 
 *StructuralVariantUtil* estimates somatic SV calling performance including precision, sensitivity and F1 score, from whole genome sequencing data, based on prediction models developed in *ShinySoSV*. Input parameters required include any candidate caller(s) (*Manta*, *GRIDSS*, *Delly*, *SvABA*) and variables impacting somatic SV calling, including variant allele frequency (VAF), normal coverage, tumour coverage and tolerance of breakpoint precision.
 
+We require the following input parameters from your study to be stored in a data.frame.
 
+-   sampleID (character): unique identifier of sample(s). The following example demonstrates the SV calling performance prediction for a cohort of 100 samples.
 
+-   VAF (numeric): variant allele frequency or estimated tumour purity
 
+-   N_coverage (numeric): depth of coverage of normal sample
 
+-   T_coverage (numeric): depth of coverage of tumour sample
 
+-   BND_threshold (numeric): tolerance of breakpoint precision. The predicted sensitivity and precision will be higher if you have higher tolerance of breakpoint precision, i.e. higher BND_threshold.
 
+Other input parameters required include performance measurement(s) to estimate (sensitivity, precision, F1_score) for any call set(s) (individual, union, intersection). We demonstrate SV calling performance estimation here using a simulated data set as input, stored in data.frame newdata. Then we predict F1 score of five SV callers' calling performance based on the input variables.
 
+```{r , message = FALSE, warning = FALSE}
+set.seed(1)
+newdata <- data.frame(sampleID = paste0("sample_",c(1:100)), 
+                      VAF = round(rnorm(100, mean=0.5, sd=0.1),digits = 2), 
+                      N_coverage = round(rnorm(100, mean=30, sd=10),digits = 2),
+                      T_coverage = round(rnorm(100, mean=60, sd=10),digits = 2), BND_threshold = 100) 
+head(newdata)
+performance <- "F1_score"
+callset <- "individual"
+candidate_callers <- c("Manta","Lumpy","GRIDSS","Delly","SvABA")
 
+```
 
+Once all input data has been loaded, we proceed to run the function *ShinySoSV_prediction*, which outputs data.frame with value of predicted performance (e.g. F1 score in this example) for all selected caller(s) and/or their pairwise union and intersection sets. Please note the *Shiny-SoSV* tool must be downloaded in the working directory when running *ShinySoSV_prediction* in R.
 
+```{r , message = FALSE, warning = FALSE}
+library("StructuralVariantUtil")
+setwd("~/Desktop/work_at_home/HRPCa_SV_method_paper/TEST_R_script2")
+df_prediction <- ShinySoSV_prediction(Candidate_callers, newdata, performance, callset)
+head(df_prediction)
+```
 
+### Convert VCF format to data.frame in R
+
+*StructuralVariantUtil* allows users to convert SVs in VCF format to data.frame in R by using function vcf_to_dataframe. The required input parameter is a file path to a VCF file. The following example shows the use of function vcf_to_dataframe on VCF output from *Manta (v1.4.0)* ran on a pair of simulated tumour and normal BAM (Gong et al., 2020).This function is expected to work for VCF format v4.1 or above, and has been tested on VCF output files from *Manta*, *GRIDSS*, *Lumpy*, *Delly* and *SvABA*.
+
+We demonstrate the use of function vcf_to_dataframe using VCF file from Manta v1.4.0.
+
+```{r}
+vcf_file <- system.file("extdata", "manta_sample1.vcf",package = "StructuralVariantUtil")
+
+```
+
+This function outputs a data.frame with the following variables:
+
+-   CHROM: chromosome of the first breakpoint; CHROM field in VCF
+-   POS: genomic location of the first breakpoint; POS field in VCF
+-   ID_caller: ID field in VCF
+-   REF: reference allele; REF field in VCF
+-   ALT: alternate allele; ALT field in VCF
+-   QUAL: quality score; QUAL field in VCF
+-   FILTER: FILTER field in VCF
+-   INFO_END: END in INFO field in VCF
+-   INFO_SVTYPE: SVTYPE in INFO field in VCF
+-   INFO_SVLEN: SVLEN in INFO field
+-   INFO_STRANDS: STRANDS in INFO field
+-   INFO_CT: CT in INFO field
+-   INFO_INV5: INV5 in INFO field
+-   INFO_INV3: INV5 in INFO field
+-   INFO_MATEID_caller: MATEID in INFO field in VCF reported by caller All other fields in the VCF file are ignored.
+
+```{r}
+df <- vcf_to_dataframe(vcf_file = vcf_file)
+head(df)
+```
+
+### Simple SV type classification
+
+The function *simple_SVTYPE_classification* converts SVs in VCF format into pairs of BNDs at each fusion junction, and classifies them into one of five simple SV types, including deletion (DEL), duplication (DUP), insertion (INS), inversion (INV) and inter-chromosomal translocation (TRA). The output of simple_SVTYPE_classification contains all required information for presenting the SVs in a CIRCOS plot using *circlize* R package (demonstrated below, Figure 1).
+
+The required input parameter can either be a file path to a VCF file or SV data in R data.frame. When using SV data in data.frame as input, it must have at least the following variables (see section Convert VCF format to data.frame in R):
+
+-   CHROM: chromosome of the first breakpoint; CHROM field in VCF
+-   POS: genomic location of the first breakpoint; POS field in VCF
+-   ALT: alternate allele; ALT field in VCF reported by caller following the format described in VCF specification (Version 4.1 above) section 5.4
+
+This function is expected to work for VCF format v4.1 or above, and has been tested on VCF output files from Manta, GRIDSS, Lumpy, Delly and SvABA. Here, we demonstrated the use of this function using a VCF output file from Manta (v1.4.0).
+
+```{r}
+vcf_file <- system.file("extdata", "manta_sample1.vcf",package = "StructuralVariantUtil") 
+```
+
+The output SV calls are in BEDPE format with variables as described in Table 1 for each SV event. Additional variables (except CHROM and POS) in the input data.frame are appended to the output unchanged. SVTYPE in output is identical to SVTYPE in INFO field of the input VCF if the values are already DEL, DUP, INS, INV and TRA. If input SVTYPE is BND, simple SV types are derived from ALT filed in VCF (Table 2). If value in the ALT field does not follow BND format but contain an inserted sequence or has the <INS> designation, INS is assigned as the simple SV type.
+
+After classifying SVs into simple types, the function prepare_SV_for_circos can be used to prepare your SV data for CIRCOS plot drawing using circlize R package. Here we demonstrate the CIRCOS plot drawing for this example SV call set (Figure 1).
+
+```{r}
+library(StructuralVariantUtil)
+bedpe <- simple_SVTYPE_classification(SV_data = vcf_file, caller_name="manta")
+head(bedpe)
+
+SVdata_for_circos <- prepare_SV_for_circos(bedpe)
+
+SVColours <- c(RColorBrewer::brewer.pal(n = 5, name = 'Set1'))
+names(SVColours) <- c("DEL", "DUP", "INS", "INV", "TRA")
+
+circlize::circos.initializeWithIdeogram(species = "hg38", plotType = c("ideogram", "labels"))
+circlize::circos.genomicLink(SVdata_for_circos[[1]], SVdata_for_circos[[2]], 
+                             col = SVColours[match(SVdata_for_circos[[1]]$SVTYPE, names(SVColours))],h=0.2)
+circlize::circos.genomicLink(SVdata_for_circos[[3]],SVdata_for_circos[[4]], 
+                             col = SVColours[match(SVdata_for_circos[[3]]$SVTYPE, names(SVColours))])
+title(main = "CIRCOS plot for sample_1")
+
+lgd_links = ComplexHeatmap::Legend(at = c("DEL", "DUP", "INS", "INV", "TRA"), legend_gp = grid::gpar(fill=SVColours), type ="grid",by_row = TRUE,ncol=5,
+                                   title_position = "topleft", title = "SV")
+ComplexHeatmap::draw(lgd_links, 
+                     y = ggplot2::unit(ComplexHeatmap:::height(lgd_links), "mm"))
+circlize::circos.clear()
+```
+
+### SV caller Integration filtration
+
+Using function *SV_integration*, *StructuralVariantUtil* allows users to integrate SV call sets in VCF (e.g. results from different SV callers), by first standardising the BND pairs in simple types and then comparing BND position differences and types.
+
+Input parameters required to run SV_integration include:
+
+-   vcf_files: list of VCF files in the same order as SVCaller_name
+-   SVCaller_names: vector of names of SV callers or unique identifier of the VCFs
+-   sampleID: unique identifier for the sample. Default as "sample_1".
+-   bkpt_T\_callers: threshold of breakpoint position difference between two calls to be concordant. Default is 100bp.
+-   PASS_filter: filtering based on FILTER field of two calls in VCF: "both" to require both two calls with "PASS", "one" to require one of the two calls with "PASS", "none" to ignore this filtering. Default is "both".
+-   SVTYPE_ignore: whether to consider same SV type for SV concordance. TRUE or FALSE.
+-   bedtools_dir: path of bedtools. Specify your path here or add its path to system PATH.
+
+```{r}
+vcf_files<- c(system.file("extdata", "manta_SVEngine_TumorSV2.60x_NormalSV1.60x_0.5.T.PASS.recode.vcf", package = "StructuralVariantUtil"),
+             system.file("extdata", "GRIDSS_SVEngine_TumorSV2.60x_NormalSV1.60x_0.5_somatic_PASS_annotated.vcf", package = "StructuralVariantUtil"))
+sampleID <- "sample_1"
+SVCaller_names <- c("manta","gridss")
+```
+
+Once the input data has been loaded, we proceed to run the function SV_integration, which outputs integrated SV call set saved in bedpe file with columns of input callers ID added.
+
+```{r}
+integrated_bedpe <- SV_integration(vcf_files, SVCaller_names, sampleID)
+head(integrated_bedpe)
+```
+
+You can also use the integrated SV set from SV_integration as input for VennDiagram package to plot the integrated SV set in a venn diagram, shown in Figure 2.
+
+```{r, eval=FALSE}
+union_ID <- integrated_bedpe[, (ncol(integrated_bedpe)-length(SVCaller_names)+1):ncol(integrated_bedpe)]
+for(i in c(1: length(SVCaller_names))){
+  index <- rowSums(!is.na(union_ID)) != 1 & (!is.na(union_ID[,i]))
+  union_ID[index,i] <- integrated_bedpe[index,]$ID
+  assign(SVCaller_names[i], union_ID[,i][!is.na(union_ID[,i])])
+}
+x <- do.call("list", lapply(SVCaller_names,function(s) eval(parse(text=s))))
+g <- VennDiagram::venn.diagram(
+  x = x,
+  category.names = SVCaller_names,
+  # Circles
+  lwd = 2,
+  fill = RColorBrewer::brewer.pal(3, "Pastel2")[1:length(SVCaller_names)],
+  
+  # Numbers
+  cex = 1,
+  fontface = "bold",
+  filename = NULL,
+  output=FALSE
+)
+grid::grid.newpage()
+grid::grid.draw(g)
+```
+
+### Spectrum of SV types for large cohort
+
+*StructuralVariantUtil* can summarize the spectrum of SV types at a cohort level using function *spectrum_SV_type*. For large cancer cohorts (recommended n \> 30), the function can also identify hyper-SV mutated tumour samples.
+
+Input parameters required by spectrum_SV_type include sample ID and file paths to VCF files or SV callsets in data.frame for all samples in cohort. For the requirement of SV data in data.frame as input, see sections of Convert VCF format to data.frame in R and Simple SV type classification. Optional parameters to identify hyper-SV mutated tumour samples include:
+
+-   identify_hyperSV_tumour: TRUE or FALSE. Whether to identify hyper-SV mutated tumour samples for large cancer cohort. Default as FALSE.
+-   threshold_total: threshold of minimum total count of SVs per sample. The default value is the average total SV count in the cohort.
+-   threshold_relative_freq: the threshold of minimum relative frequency of one SV type per sample. The default value is 50%.
+
+```{r}
+All_sampleID <- paste0("sample",c(1,2,3))
+vcf_files <- c(system.file("extdata", "manta_sample1.vcf", package = "StructuralVariantUtil"),
+             system.file("extdata", "manta_sample2.vcf", package = "StructuralVariantUtil"),
+             system.file("extdata", "manta_sample3.vcf", package = "StructuralVariantUtil"))
+```
+
+Once the input data and parameters have been loaded, we proceed to run the function spectrum_SV_type, which results a data.frame with the column of provided sample ID and other columns of SV counts for each type.
+
+```{r}
+Spectrum_SVTYPE <- spectrum_SV_type(All_sampleID, All_SV_data = vcf_files)
+Spectrum_SVTYPE
+```
+
+Another example below demonstrates the use of function *spectrum_SV_type* to identify the hyper-SV tumour by setting parameter of *identify_hyperSV_tumour* as TRUE. Here, we load the test input SV call sets in data.frame for 100 samples, with breakpoints simulated randomly based on Hg38 genomic positions, excluding gap, centromere and telomere regions.
+
+```{r}
+data(list)
+All_sampleID <- paste0("sample_",c(1:100))
+```
+
+In addition to a data.frame with SV counts for each type for all samples, we will get another output of the hyper-SV tumour saved in data.frame with following variables:
+
+-   sampleID: ID of sample with hyper-SV identified.
+-   count: count of SVs in this type
+-   relative_freq: relative frequency of the particular SV type per sample.
+-   total_count: total count of SVs in this sample.
+-   HYPER_SVTYPE: which type of hyper-SV mutation.
+
+```{r}
+results <- spectrum_SV_type(All_sampleID, All_SV_data =list, identify_hyperSV_tumour = TRUE)
+Spectrum_SVTYPE <- results[[1]]
+head(Spectrum_SVTYPE)
+Hyper_SV_sample <- results[[2]] 
+Hyper_SV_sample
+```
+
+###Spectrum of SV breakpoints in genomic bins
+
+*StructuralVariantUtil* facilitates identifying the spectrum of SV breakpoints within 1 Mb non-overlapping bin across the genome, using the function *spectrum_SV_breakpoint*. This function further identifies SV hotspots and provide visualisation of the SV breakpoints spectrum.
+
+Input parameters required by *spectrum_SV_breakpoint* include sample ID and file paths to VCF files or SV callsets in data.frame for all samples in cohort, which are same as the required input parameters for function summary_SV_type. SV hotspots are defined as genomic regions most frequently (\> Q3 + k × (Q3 - Q1)) affected by SV breakpoints, either in the same genome or recurrent across genomes.
+
+The required input thresholds to define SV hotspots are:
+
+-   threshold_count_breakpoint: the k value in Tukey's fences approach to find outliers in breakpoint count. The default is set as 1.5. Considering clustered SV breakpoints such as chromothripsis can be attained in a single tumour, it can be more stringent on this threshold by setting this threshold to be higher (for example, as 3).
+-   threshold_count_sample: the k value in Tukey's fences approach to define outliers for sample count. The default is set as 1.5.
+
+```{r}
+All_sampleID <- paste0("sample",c(1,2,3))
+vcf_files <- c(system.file("extdata", "manta_sample1.vcf", package = "StructuralVariantUtil"),
+             system.file("extdata", "manta_sample2.vcf", package = "StructuralVariantUtil"),
+             system.file("extdata", "manta_sample3.vcf", package = "StructuralVariantUtil"))
+```
+
+Once the input data and parameters have been loaded, we proceed to run the function spectrum_SV_breakpoint, which results a data.frame with the following variables.
+
+• chrom_bin_labels (character): unique identifier of genomic bin • bin_labels (character): ID of bin for each chromosome • bin (character): genomic region of bin • breaks (numeric): start of genomic bin • sampleID (character): sample name or ID • chrom (character): chromosome of the breakpoint in the genomic bin • pos (numeric): genomic location of the breakpoint in the genomic bin • count_breakpoints (numeric): the count of SV breakpoint in the genomic bin • count_sample (numeric): the number of samples with at least one SV breakpoint in the genomic bin • is_hotspot_breakpoint (TRUE or FALSE): whether defined as hotspot based on count of breakpoints (\> Q3 + threshold_count_breakpoint × (Q3 - Q1)) • is_hotspot_sample (TRUE or FALSE): whether defined as hotspot based on count of samples (\> Q3 + threshold_count_sample × (Q3 - Q1)) • is_hotspot (TRUE or FALSE): whether defined as hotspot either in the same genome or recurrent across genomes
+
+```{r}
+df_bin_all_hotspots <- spectrum_SV_breakpoint(All_sampleID, All_SV_data = vcf_files)
+head(df_bin_all_hotspots)
+```
