@@ -6,6 +6,7 @@
 #' @return SV in bed format
 #' @export
 strands_standardisation <- function(bed){
+  colnames(bed)[which(colnames(bed)=="ID")] <- "ID_caller"
   if(length(bed$ID_caller) == 0){bed$ID_caller = c(1:nrow(bed))}
   strand1 <- rep(NA, nrow(bed)); strand2 <- rep(NA, nrow(bed))
   if(sum(!is.na(bed$INFO_STRANDS))!=0){
@@ -106,6 +107,7 @@ bed_to_bedpe <- function(bed){
   ###]p]t
   strand1[grepl(']', bed$ALT) & substr(bed$ALT,1,1) == "]"] <- "-"
   strand2[grepl(']', bed$ALT) & substr(bed$ALT,1,1) == "]"] <- "+"
+
 
   bedpe <- data.frame(chrom1=chrom1,
                       start1=bed$POS-1,
