@@ -214,7 +214,7 @@ SV_integration_pairwise <- function(sampleID, df_SV, vcf_files, bkpt_T_callers, 
   if(length(pairtopair)==0){
     caller1_bedpe$caller2_ID <- NA
   }else{
-    pairtopair_filtered <- pairtopair_filter(pairtopair,PASS_filter, svtype_ignore)
+    pairtopair_filtered <- pairtopair_filter(pairtopair, PASS_filter, svtype_ignore)
     caller1_bedpe_filtered <- caller1_bedpe[caller1_bedpe$ID %in% pairtopair_filtered$caller1_ID, ]
 
     caller1_ID <- unique(pairtopair_filtered$caller1_ID)

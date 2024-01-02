@@ -219,7 +219,14 @@ summary_SV_breakpoint <- function(All_sampleID, All_SV_data){
   for(i in c(1 : length(All_sampleID))){
     sampleID <- All_sampleID[i]
     SV_data <- All_SV_data[[i]]
-    bedpe <- simple_SVTYPE_classification(SV_data, caller_name = "StructuralVariantUtil")
+    if(is.data.frame(SV_data)){
+      cat(paste0("Read SV data of ", sampleID, " in bedpe format.\n"))
+      bedpe <- SV_data
+    }else{
+      cat(paste0("Read SV data of ", sampleID, " in VCF format.\n"))
+      bedpe <- simple_SVTYPE_classification(SV_data, caller_name = "StructuralVariantUtil")
+    }
+
     if(nrow(bedpe) != 0){
       df_breakpoints <- rbind(df_breakpoints,
                               data.frame(sampleID = sampleID,
@@ -387,7 +394,7 @@ spectrum_SV_breakpoint <- function(All_sampleID, All_SV_data, threshold_count_br
 #' @param bedtools_dir directory of bedtools to use
 #' @return data frame of intersection set between SV and gene regions
 #' @export
-SV_breakpoint_gene_annotation <- function(SV_data, gene_bed, bedtools_dir=NULL){
+SV_breakpoint_gene_annotation <- function(SV_data, caller_name, gene_bed, bedtools_dir=NULL){
   if(is.null(bedtools_dir)){bedtools_dir <- Check_bedtools(x = "bedtools")}else{cat(paste0("Provided path for bedtools ... \n", bedtools_dir,"\n"))}
   if(is.null(bedtools_dir) | bedtools_dir == ""){cat(paste0("ERROR: Please provide the bedtools path.\n"))}else{
     directory <- "./"
@@ -396,7 +403,7 @@ SV_breakpoint_gene_annotation <- function(SV_data, gene_bed, bedtools_dir=NULL){
 
     gene_file <- paste0(sub_directory,"gene","_tmp.bed")
     write.table(gene_bed, gene_file, quote=FALSE, sep='\t', row.names=FALSE, col.names=TRUE)
-    bedpe <- simple_SVTYPE_classification(SV_data, caller_name = "manta")
+    bedpe <- simple_SVTYPE_classification(SV_data, caller_name)
     if(nrow(bedpe) !=0){
       bedpe$chrom1 <- as.character(bedpe$chrom1)
       bedpe$chrom2 <- as.character(bedpe$chrom2)
@@ -434,10 +441,10 @@ SV_breakpoint_gene_annotation <- function(SV_data, gene_bed, bedtools_dir=NULL){
 #' @param bedtools_dir bedtools for use
 #' @return data frame of SV set
 #' @export
-SV_bedpe_annotation <- function(SV_data, gene_bed, bedtools_dir=NULL){
+SV_bedpe_annotation <- function(SV_data, caller_name, gene_bed, bedtools_dir=NULL){
   #bedpe <- eval(parse(text = input_df_name))
-  bedpe_bkpt_geneAnnotated <- SV_breakpoint_gene_annotation(SV_data, gene_bed,  bedtools_dir)
-  bedpe <- simple_SVTYPE_classification(SV_data, caller_name = "manta")
+  bedpe_bkpt_geneAnnotated <- SV_breakpoint_gene_annotation(SV_data, caller_name, gene_bed,  bedtools_dir)
+  bedpe <- simple_SVTYPE_classification(SV_data, caller_name)
   #bedpe_bkpt_geneAnnotated <- bedpe_bkpt_geneAnnotated[bedpe_bkpt_geneAnnotated$type == "gene" & bedpe_bkpt_geneAnnotated$gene_biotype == "protein_coding",]
   if(nrow(bedpe) !=0){
     bedpe_geneAnnotated <- c()
@@ -475,9 +482,9 @@ SV_bedpe_annotation <- function(SV_data, gene_bed, bedtools_dir=NULL){
 #' @param bedtools_dir bedtools for use
 #' @return data frame of SV set
 #' @export
-SV_gene_annotation <- function(SV_data, gene_bed, bedtools_dir=NULL){
-  bedpe_geneAnnotated <- SV_bedpe_annotation(SV_data, gene_bed, bedtools_dir)
-  bedpe <- simple_SVTYPE_classification(SV_data, caller_name = "manta")
+SV_gene_annotation <- function(SV_data, caller_name="caller_1", gene_bed, bedtools_dir=NULL){
+  bedpe_geneAnnotated <- SV_bedpe_annotation(SV_data, caller_name, gene_bed, bedtools_dir)
+  bedpe <- simple_SVTYPE_classification(SV_data, caller_name)
   if(nrow(bedpe) !=0){
     pos1_overlap_gene <- c()
     pos2_overlap_gene <- c()
