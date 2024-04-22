@@ -71,7 +71,10 @@ simple_SVTYPE_classification <- function(SV_data, caller_name="caller1"){
     bedpe <- bedpe[is.na(match(bedpe$ID_caller, bedpe$INFO_MATEID_caller)) | ### either don't have mate (i.e. not BND)
                      (c(1:nrow(bedpe)) < match(bedpe$ID_caller, bedpe$INFO_MATEID_caller)),] ###  or present first as BND
   }
-  bedpe[is.na(bedpe$INFO_SVTYPE),]$INFO_SVTYPE <- "BND" ###If no SVTYPE field
+  if(sum(is.na(bedpe$INFO_SVTYPE))!=0){
+    bedpe[is.na(bedpe$INFO_SVTYPE),]$INFO_SVTYPE <- "BND" ###If no SVTYPE field
+  }
+
   SV_index <- c(1:nrow(bedpe))
   event_index <- SV_index
 
